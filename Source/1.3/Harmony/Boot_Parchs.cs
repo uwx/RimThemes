@@ -136,7 +136,7 @@ namespace aRandomKiwi.RimThemes
                         //Loading themes(only the conf where the loader is not pdisabled can access it)
                         Utils.startLoadingTheme();
 
-                        LoaderGM.nbDefToResolving = typeof(Def).AllSubclasses().Count() - 1; //-1 because Def sub-class def
+                        LoaderGM.nbDefToResolving = typeof(Def).AllSubclasses().Count - 1; //-1 because Def sub-class def
                         LoaderGM.curStep = LoaderSteps.ResolvingReferences;
                     }
                 }
@@ -207,7 +207,7 @@ namespace aRandomKiwi.RimThemes
                 if (LoaderGM.curStep != LoaderSteps.FinishUp)
                     return true;
                 var t = Type.GetTypeFromHandle(type);
-                if (t.TryGetAttribute(out StaticConstructorOnStartup attrib))
+                if (t.TryGetAttribute(out StaticConstructorOnStartup _))
                 {
                     //We are calling the constructor of a StaticConstructorOnStartup-Annotated class. In theory.
                     LoaderGM.curConstructor = t;

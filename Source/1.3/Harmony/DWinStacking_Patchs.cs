@@ -90,7 +90,7 @@ namespace aRandomKiwi.RimThemes
                     || (window is MainTabWindow && !(window is MainTabWindow_Inspect))
                     || (window is EditWindow)))
                 {
-                    if (Utils.lastShowedWin.Count() != 0)
+                    if (Utils.lastShowedWin.Count != 0)
                     {
                         //Removing the current window from the stack
                         Utils.lastShowedWin.RemoveAll(x => x.wid == window.ID);

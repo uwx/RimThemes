@@ -18,9 +18,9 @@ namespace aRandomKiwi.RimThemes
             if (tag.StartsWith("customfontsize"))
             {
                 //Search if presence of customFont <CurrentLang>
-                string curCustomFontSizeNeeded = "";
-                string se = "";
-                string defaultCustomfont = "";
+                string curCustomFontSizeNeeded;
+                string se;
+                string defaultCustomfont;
 
                 if (tag.StartsWith("customfontsizetiny"))
                 {
@@ -73,9 +73,9 @@ namespace aRandomKiwi.RimThemes
             else if (tag.StartsWith("customfont"))
             {
                 //Search if presence of customFont <CurrentLang>
-                string curCustomFontNeeded = "";
-                string se = "";
-                string defaultCustomfont = "";
+                string curCustomFontNeeded;
+                string se;
+                string defaultCustomfont;
 
                 if (tag.StartsWith("customfonttiny"))
                 {
@@ -138,14 +138,14 @@ namespace aRandomKiwi.RimThemes
             //Custom font loading requests for certain themes
             if (Themes.fontsToLoad.Count != 0)
             {
-                Themes.LogMsg("Processing " + Themes.fontsToLoad.Count() + " fonts to load");
+                Themes.LogMsg("Processing " + Themes.fontsToLoad.Count + " fonts to load");
                 try
                 {
                     int number;
-                    Font font = null;
-                    Font tinyFont = null;
-                    Font smallFont = null;
-                    Font mediumFont = null;
+                    Font font;
+                    Font tinyFont;
+                    Font smallFont;
+                    Font mediumFont;
 
                     foreach (var entry in Themes.fontsToLoad)
                     {

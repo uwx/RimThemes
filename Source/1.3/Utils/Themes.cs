@@ -14,6 +14,7 @@ using System.Reflection;
 using RuntimeAudioClipLoader;
 using Verse.Sound;
 using UnityEngine.Networking;
+// ReSharper disable InconsistentNaming
 
 namespace aRandomKiwi.RimThemes
 {
@@ -338,7 +339,7 @@ namespace aRandomKiwi.RimThemes
 
             string fullPathRoot;
             string[] folders = System.IO.Directory.GetDirectories(themesDir);
-            LogMsg("Found " + folders.Count() + " themes");
+            LogMsg("Found " + folders.Length + " themes");
             try
             {
                 foreach (var dir in folders)
@@ -422,7 +423,7 @@ namespace aRandomKiwi.RimThemes
                                 {
                                     string[] tmp = getClassNameAndFileName(curTexName);
 
-                                    if (tmp.Count() != 2)
+                                    if (tmp.Length != 2)
                                     {
                                         LogMsg("Bad tex name for " + curTexName);
                                     }
@@ -607,14 +608,14 @@ namespace aRandomKiwi.RimThemes
                 DBColor[themeID][MiscKey] = new Dictionary<string, Color>();
                 try
                 {
-                    using (XmlReader reader = XmlReader.Create(@metaPath))
+                    using (var reader = XmlReader.Create(@metaPath))
                     {
                         reader.MoveToContent();
                         while (reader.Read())
                         {
-                            if ((reader.NodeType == XmlNodeType.Element))
+                            if (reader.NodeType == XmlNodeType.Element)
                             {
-                                tag = reader.Name.ToString();
+                                tag = reader.Name;
                                 value = reader.ReadString();
 
                                 //Log.Message(tag+" "+value);
@@ -622,7 +623,7 @@ namespace aRandomKiwi.RimThemes
                                 if (tag.IndexOf('.') != -1)
                                 {
                                     string[] tmp = getClassNameAndFileName(tag);
-                                    if (tmp.Count() != 2)
+                                    if (tmp.Length != 2)
                                         LogMsg("Bad color tag " + tag);
                                     else
                                     {
@@ -787,7 +788,7 @@ namespace aRandomKiwi.RimThemes
                                                 break;
                                             case "dyncolor":
                                                 string[] parts = value.Split('=');
-                                                if (parts.Count() == 2)
+                                                if (parts.Length == 2)
                                                 {
                                                     Themes.LogMsg("Found dynColor " + parts[0] + " => " + parts[1]);
                                                     Color c1 = (Color)ParseHelper.FromString(parts[0], typeof(Color));
@@ -822,7 +823,7 @@ namespace aRandomKiwi.RimThemes
                         }
                     }
                     //IF customFontX buffering dictionary not empty then pushing into fontsToLoad
-                    if (fontToLoadEntry.Count() != 0)
+                    if (fontToLoadEntry.Count != 0)
                         fontsToLoad.Add(fontToLoadEntry);
                 }
                 catch (Exception e)
@@ -904,6 +905,7 @@ namespace aRandomKiwi.RimThemes
 
                 //Save theme change
                 Settings.curTheme = newTheme;
+                ActiveTheme = new ActiveTheme(newTheme);
                 Utils.modSettings.Write();
 
                 changeSoundTheme();
@@ -921,13 +923,13 @@ namespace aRandomKiwi.RimThemes
                 Themes.LogError("Error while trying to change theme : "+e.Message);
             }
         }
-
+        
         /*
          * Change theme song
          */
         public static void changeSongTheme()
         {
-            string theme = Settings.curTheme;
+            var theme = Settings.curTheme;
 
             //If custom sounds disabled then forcing the Vanilla theme sound
             if (Settings.disableCustomSongs)
@@ -956,33 +958,31 @@ namespace aRandomKiwi.RimThemes
             }
 
 
-            if (!DBSong.ContainsKey(theme) || DBSong[theme] == null)
+            if (!DBSong.TryGetValue(theme, out var songs) || songs == null)
                 theme = VanillaThemeID;
 
             try
             {
                 //New grain definition
-                SongDefOf.EntrySong.clip = DBSong[theme]["EntrySong"];
-                Type ctype = Type.GetType(typeof(Verse.Current).AssemblyQualifiedName);
-                if (ctype != null)
+                SongDefOf.EntrySong.clip = songs["EntrySong"];
+                var ctype = typeof(Verse.Current);
+
+                var fi = ctype.GetField("rootEntryInt", BindingFlags.NonPublic | BindingFlags.Static);
+                var re = (Root_Entry)fi.GetValue(null);
+                //Root_Entry re = (Root_Entry) Traverse.Create("Current").Field("rootEntryInt").GetValue();
+                /*if (re == null)
+                    Log.Message("re == null");*/
+                var musicManagerEntry = (MusicManagerEntry)Traverse.Create(re).Field("musicManagerEntry").GetValue();
+                /*if (musicManagerEntry == null)
+                    Log.Message("Music manager == null");*/
+                var audio = (AudioSource)Traverse.Create(musicManagerEntry).Field("audioSource").GetValue();
+                /*if (audio == null)
+                    Log.Message("audio == null");*/
+                if (audio != null)
                 {
-                    FieldInfo fi = ctype.GetField("rootEntryInt", BindingFlags.NonPublic | BindingFlags.Static);
-                    Root_Entry re = (Root_Entry)fi.GetValue(null);
-                    //Root_Entry re = (Root_Entry) Traverse.Create("Current").Field("rootEntryInt").GetValue();
-                    /*if (re == null)
-                        Log.Message("re == null");*/
-                    MusicManagerEntry musicManagerEntry = (MusicManagerEntry)Traverse.Create(re).Field("musicManagerEntry").GetValue();
-                    /*if (musicManagerEntry == null)
-                        Log.Message("Music manager == null");*/
-                    AudioSource audio = (AudioSource)Traverse.Create(musicManagerEntry).Field("audioSource").GetValue();
-                    /*if (audio == null)
-                        Log.Message("audio == null");*/
-                    if (audio != null)
-                    {
-                        audio.Stop();
-                        audio.clip = DBSong[theme]["EntrySong"];
-                        audio.Play();
-                    }
+                    audio.Stop();
+                    audio.clip = songs["EntrySong"];
+                    audio.Play();
                 }
             }
             catch (Exception e)
@@ -1005,7 +1005,8 @@ namespace aRandomKiwi.RimThemes
                 theme = VanillaThemeID;
 
             //If vanilla grains never saved, we proceed immediately
-            if (!vanillaGrainsSaved){
+            if (!vanillaGrainsSaved)
+            {
                 saveVanillaGrains();
                 vanillaGrainsSaved = true;
             }
@@ -1018,18 +1019,17 @@ namespace aRandomKiwi.RimThemes
             if (!DBSound.ContainsKey(theme))
                 return;
 
-            Type ctype = Type.GetType(typeof(SoundDefOf).AssemblyQualifiedName);
+            Type ctype = typeof(SoundDefOf);
 
-            foreach(var prop in DBSound[theme])
+            foreach (var (propName, value) in DBSound[theme])
             {
                 try
                 {
-                    string propName = prop.Key;
                     FieldInfo fi = ctype.GetField(propName);
                     SoundDef entry = (SoundDef)fi.GetValue(null);
 
                     //New grain definition
-                    entry.subSounds[0].grains[0] = prop.Value;
+                    entry.subSounds[0].grains[0] = value;
                     //Resolving new grains
                     entry.subSounds[0].ResolveReferences();
                 }
@@ -1045,7 +1045,7 @@ namespace aRandomKiwi.RimThemes
          */
         public static void saveVanillaGrains()
         {
-            Type ctype = Type.GetType(typeof(SoundDefOf).AssemblyQualifiedName);
+            Type ctype = typeof(SoundDefOf);
             FieldInfo[] fields = ctype.GetFields();
 
             foreach(var field in fields)
@@ -1079,7 +1079,7 @@ namespace aRandomKiwi.RimThemes
 
         public static void restoreVanilaGrains()
         {
-            Type ctype = Type.GetType(typeof(SoundDefOf).AssemblyQualifiedName);
+            Type ctype = typeof(SoundDefOf);
             FieldInfo[] fields = ctype.GetFields();
             foreach (var field in fields)
             {
@@ -1190,10 +1190,10 @@ namespace aRandomKiwi.RimThemes
         public static void changeThemeOtherMods(string theme)
         {
             //Applying patches for crappy mods that overrides graphic elements
-            BindingFlags NPS = (BindingFlags.NonPublic | BindingFlags.Static);
+            const BindingFlags NPS = (BindingFlags.NonPublic | BindingFlags.Static);
 
             Assembly[] ass = AppDomain.CurrentDomain.GetAssemblies();
-            for (int i = 0; i != ass.Count(); i++)
+            for (int i = 0; i != ass.Length; i++)
             {
                 try
                 {
@@ -1306,32 +1306,26 @@ namespace aRandomKiwi.RimThemes
 
         public static Texture2D getThemeIcon(string dtheme = "")
         {
-            string theme;
-            if (dtheme != "")
-                theme = dtheme;
-            else
-                theme = Settings.curTheme;
+            if (dtheme.Length == 0)
+                // ReSharper disable once Unity.NoNullCoalescing
+                return ActiveTheme.DBTexThemeIcon ?? Loader.defaultIconTex;
 
-            if (!DBTexThemeIcon.ContainsKey(theme))
-            {
-                return Loader.defaultIconTex;
-            }
+            if (DBTexThemeIcon.TryGetValue(dtheme, out var result))
+                return result;
 
-            return DBTexThemeIcon[theme];
+            return Loader.defaultIconTex;
+
         }
 
         public static Texture2D getThemeParticle(string dtheme = "")
         {
-            string theme;
-            if (dtheme != "")
-                theme = dtheme;
-            else
-                theme = Settings.curTheme;
+            if (dtheme.Length == 0)
+                return ActiveTheme.DBTexParticle;
+            
+            if (DBTexParticle.TryGetValue(dtheme, out var result))
+                return result;
 
-            if (!DBTexParticle.ContainsKey(theme))
-                return null;
-
-            return DBTexParticle[theme];
+            return null;
         }
 
         /*
@@ -1339,71 +1333,58 @@ namespace aRandomKiwi.RimThemes
          */
         public static Texture2D getThemeTex(string className,string fieldName,string dtheme = "")
         {
-            string theme;
-            if (dtheme != "")
-                theme = dtheme;
-            else
-                theme = Settings.curTheme;
+            if (dtheme.Length == 0)
+                return ActiveTheme.DBTex.TryGetValue((className, fieldName), out var result)
+                    ? result
+                    : null;
 
+            if (DBTex.TryGetValue(dtheme, out var p1) && p1.TryGetValue(className, out var p2) && p2.TryGetValue(fieldName, out var p3) && p3 != null)
+                return p3;
+            
             //If absent, the Vanilla version is returned
-            if (!DBTex.ContainsKey(theme) || !DBTex[theme].ContainsKey(className) || !DBTex[theme][className].ContainsKey(fieldName) || DBTex[theme][className][fieldName] == null)
-            {
-                if (!DBTex.ContainsKey(VanillaThemeID) || !DBTex[VanillaThemeID].ContainsKey(className) || !DBTex[VanillaThemeID][className].ContainsKey(fieldName) || DBTex[VanillaThemeID][className][fieldName] == null)
-                    return null;
-                else
-                    return DBTex[VanillaThemeID][className][fieldName];
-            }
+            if (DBTex.TryGetValue(VanillaThemeID, out var v1) && v1.TryGetValue(className, out var v2) && v2.TryGetValue(fieldName, out var v3) && v3 != null)
+                return v3;
 
-            return DBTex[theme][className][fieldName];
+            return null;
         }
-
 
         public static string getText(string text, string dtheme = "")
         {
-            Dictionary<string, string> p1;
-            string p2;
-            string theme;
-            if (dtheme != "")
-                theme = dtheme;
-            else
-                theme = Settings.curTheme;
+            if (dtheme.Length == 0)
+                return ActiveTheme.DBText != null && ActiveTheme.DBText.TryGetValue(text, out var result)
+                    ? result
+                    : null;
 
-            if (DBText == null || !DBText.TryGetValue(theme, out p1) || p1 == null || !p1.TryGetValue(text, out p2))
-                return null;
-            return p2;
+            if (DBText != null && DBText.TryGetValue(dtheme, out var p1) && p1 != null && p1.TryGetValue(text, out var p2))
+                return p2;
+    
+            return null;
         }
 
         public static int getVal(string text, string dtheme = "")
         {
-            Dictionary<string, int> p1;
-            int p2;
+            if (dtheme.Length == 0)
+                return ActiveTheme.DBVal != null && ActiveTheme.DBVal.TryGetValue(text, out var result)
+                    ? result
+                    : -9999;
 
-            string theme;
-            if (dtheme != "")
-                theme = dtheme;
-            else
-                theme = Settings.curTheme;
+            if (DBVal.TryGetValue(dtheme, out var p1) && p1 != null && p1.TryGetValue(text, out var p2))
+                return p2;
 
-            if (!DBVal.TryGetValue(theme,out p1) || p1 == null || !p1.TryGetValue(text, out p2))
-                return -9999;
-            return p2;
+            return -9999;
         }
 
         public static Color getColorMisc(string text, string dtheme = "")
         {
-            Dictionary<string,Dictionary<string, Color>> p1;
-            Dictionary<string, Color> p2;
-            Color p3;
-            string theme;
-            if (dtheme != "")
-                theme = dtheme;
-            else
-                theme = Settings.curTheme;
+            if (dtheme.Length == 0)
+                return ActiveTheme.DBColor != null && ActiveTheme.DBColor.TryGetValue((text, MiscKey), out var result)
+                    ? result
+                    : Color.black;
 
-            if (!DBColor.TryGetValue(theme, out p1) || p1 == null || !p1.TryGetValue(MiscKey, out p2) || !p2.TryGetValue(text, out p3))
-                return Color.black;
+            if (DBColor.TryGetValue(dtheme, out var p1) && p1 != null && p1.TryGetValue(MiscKey, out var p2) &&
+                p2.TryGetValue(text, out var p3)) return p3;
 
-            return p3;
+            return Color.black;
         }
 
         private static GUIStyle cacheGetDBGUIStyleTiny = null;
@@ -1415,13 +1396,12 @@ namespace aRandomKiwi.RimThemes
 
         public static GUIStyle getDBGUIStyle(GameFont gf)
         {
-            string theme = Settings.curTheme;
-            Dictionary<GameFont, GUIStyle> p1;
+            var theme = Settings.curTheme;
 
-            if (forcedFontTheme != "")
+            if (forcedFontTheme.Length != 0)
                 theme = forcedFontTheme;
 
-            if (Settings.disableCustomFonts || !DBGUIStyle.TryGetValue(theme, out p1) || p1 == null)
+            if (Settings.disableCustomFonts)
             {
                 return null;
             }
@@ -1443,6 +1423,10 @@ namespace aRandomKiwi.RimThemes
                     break;
             }
 
+            if (!DBGUIStyle.TryGetValue(theme, out var p1) || p1 == null)
+            {
+                return null;
+            }
 
             //Put in cache
             switch (gf)
@@ -1466,52 +1450,67 @@ namespace aRandomKiwi.RimThemes
 
         public static GUIStyle getDBGUIStyleTextField(GameFont gf)
         {
-            string theme = Settings.curTheme;
-            if (forcedFontTheme != "")
-                theme = forcedFontTheme;
-            if (!DBGUIStyleTextField.ContainsKey(theme) || DBGUIStyleTextField[theme] == null || Settings.disableCustomFonts)
+            if (Settings.disableCustomFonts)
                 return null;
-            return DBGUIStyleTextField[theme][gf];
+
+            if (forcedFontTheme.Length == 0)
+                return ActiveTheme.DBGUIStyleTextField?[gf];
+
+            if (!DBGUIStyleTextField.TryGetValue(forcedFontTheme, out var result) || result == null)
+                return null;
+            return result[gf];
         }
 
         public static GUIStyle getDBGUIStyleTextArea(GameFont gf)
         {
-            string theme = Settings.curTheme;
-            if (forcedFontTheme != "")
-                theme = forcedFontTheme;
-            if (!DBGUIStyleTextArea.ContainsKey(theme) || DBGUIStyleTextArea[theme] == null || Settings.disableCustomFonts)
+            if (Settings.disableCustomFonts)
                 return null;
-            return DBGUIStyleTextArea[theme][gf];
+            
+            if (forcedFontTheme.Length == 0)
+                return ActiveTheme.DBGUIStyleTextArea?[gf];
+
+            if (!DBGUIStyleTextArea.TryGetValue(forcedFontTheme, out var result) || result == null)
+                return null;
+            return result[gf];
         }
 
         public static GUIStyle getDBGUIStyleTextAreaReadOnly(GameFont gf)
         {
-            string theme = Settings.curTheme;
-            if (forcedFontTheme != "")
-                theme = forcedFontTheme;
-            if (!DBGUIStyleTextAreaReadOnly.ContainsKey(theme) || DBGUIStyleTextAreaReadOnly[theme] == null || Settings.disableCustomFonts)
+            if (Settings.disableCustomFonts)
                 return null;
-            return DBGUIStyleTextAreaReadOnly[theme][gf];
+            
+            if (forcedFontTheme.Length == 0)
+                return ActiveTheme.DBGUIStyleTextAreaReadOnly?[gf];
+
+            if (!DBGUIStyleTextAreaReadOnly.TryGetValue(forcedFontTheme, out var result) || result == null)
+                return null;
+            return result[gf];
         }
 
         public static float getDBGUIStyleLineHeight(GameFont gf)
         {
-            string theme = Settings.curTheme;
-            if (forcedFontTheme != "")
-                theme = forcedFontTheme;
-            if (!DBGUIStyleLineHeight.ContainsKey(theme) || DBGUIStyleLineHeight[theme] == null || Settings.disableCustomFonts)
+            if (Settings.disableCustomFonts)
                 return 0;
-            return DBGUIStyleLineHeight[theme][gf];
+            
+            if (forcedFontTheme.Length == 0)
+                return ActiveTheme.DBGUIStyleLineHeight?[gf] ?? 0;
+
+            if (!DBGUIStyleLineHeight.TryGetValue(forcedFontTheme, out var result) || result == null)
+                return 0;
+            return result[gf];
         }
 
         public static float getDBGUIStyleSpaceBetweenLine(GameFont gf)
         {
-            string theme = Settings.curTheme;
-            if (forcedFontTheme != "")
-                theme = forcedFontTheme;
-            if (!DBGUIStyleSpaceBetweenLine.ContainsKey(theme) || DBGUIStyleSpaceBetweenLine[theme] == null || Settings.disableCustomFonts)
+            if (Settings.disableCustomFonts)
                 return 0;
-            return DBGUIStyleSpaceBetweenLine[theme][gf];
+            
+            if (forcedFontTheme.Length == 0)
+                return ActiveTheme.DBGUIStyleSpaceBetweenLine?[gf] ?? 0;
+
+            if (!DBGUIStyleSpaceBetweenLine.TryGetValue(forcedFontTheme, out var result) || result == null)
+                return 0;
+            return result[gf];
         }
 
 
@@ -1587,23 +1586,20 @@ namespace aRandomKiwi.RimThemes
                         //Loading ok we return the custom loader
                         return DBLoader[Settings.curTheme];
                     }
-                    else
-                    {
-                        //error we return the loader by default
-                        return getDefaultLoader();
-                    }
+
+                    //error we return the loader by default
+                    return getDefaultLoader();
 
                 }
-                else
-                {
-                    //No loader, we grab the default one
-                    if (DBLoader[Settings.curTheme] == null)
-                        return getDefaultLoader();
-                    else
-                        return DBLoader[Settings.curTheme];
-                }
+
+                //No loader, we grab the default one
+                if (DBLoader[Settings.curTheme] == null)
+                    return getDefaultLoader();
+
+                return DBLoader[Settings.curTheme];
             }
-            else if (parts[0] == "-2")
+
+            if (parts[0] == "-2")
             {
                 //Loader not loaded we try to load it
                 if (!DBLoader.ContainsKey(Settings.curTheme))
@@ -1614,7 +1610,7 @@ namespace aRandomKiwi.RimThemes
                     if (!DBNoLoader.ContainsKey(Settings.curTheme))
                     {
                         string pathNL = basePath + Path.DirectorySeparatorChar + "RimThemes"
-                            + Path.DirectorySeparatorChar + parts[1] + Path.DirectorySeparatorChar + "Loader" + Path.DirectorySeparatorChar + "NOLOADER";
+                                        + Path.DirectorySeparatorChar + parts[1] + Path.DirectorySeparatorChar + "Loader" + Path.DirectorySeparatorChar + "NOLOADER";
                         if (File.Exists(pathNL))
                         {
                             DBNoLoader[Settings.curTheme] = true;
@@ -1625,8 +1621,8 @@ namespace aRandomKiwi.RimThemes
                     }
 
                     //Loading meta.xml if applicable(dependency with loaderFPS)
-                     string pathMeta = basePath + Path.DirectorySeparatorChar + "RimThemes"
-                        + Path.DirectorySeparatorChar + parts[1] + Path.DirectorySeparatorChar + "meta.xml";
+                    string pathMeta = basePath + Path.DirectorySeparatorChar + "RimThemes"
+                                      + Path.DirectorySeparatorChar + parts[1] + Path.DirectorySeparatorChar + "meta.xml";
 
                     if (File.Exists(pathMeta))
                     {
@@ -1641,7 +1637,7 @@ namespace aRandomKiwi.RimThemes
                     }
 
                     string path = basePath + Path.DirectorySeparatorChar + "RimThemes"
-                        + Path.DirectorySeparatorChar + parts[1] + Path.DirectorySeparatorChar + "Loader" + Path.DirectorySeparatorChar + "Loader.png";
+                                  + Path.DirectorySeparatorChar + parts[1] + Path.DirectorySeparatorChar + "Loader" + Path.DirectorySeparatorChar + "Loader.png";
                     if (!File.Exists(path))
                     {
                         DBLoaderNotFound[Settings.curTheme] = true;
@@ -1672,79 +1668,77 @@ namespace aRandomKiwi.RimThemes
                         return DBLoader[Settings.curTheme];
                 }
             }
+
+            //Theme located in an external theme
+            //If already loaded we return it
+            if (DBLoader.ContainsKey(Settings.curTheme))
+            {
+                //No loader, we grab the default one
+                if (DBLoader[Settings.curTheme] == null)
+                    return getDefaultLoader();
+                else
+                    return DBLoader[Settings.curTheme];
+            }
             else
             {
-                //Theme located in an external theme
-                //If already loaded we return it
-                if (DBLoader.ContainsKey(Settings.curTheme))
+                //External theme not loaded we try to load it
+                List<ModContentPack> runningModsListForReading = LoadedModManager.RunningModsListForReading;
+                for (int i = runningModsListForReading.Count - 1; i >= 0; i--)
                 {
-                    //No loader, we grab the default one
-                    if (DBLoader[Settings.curTheme] == null)
-                        return getDefaultLoader();
-                    else
-                        return DBLoader[Settings.curTheme];
-                }
-                else
-                {
-                    //External theme not loaded we try to load it
-                    List<ModContentPack> runningModsListForReading = LoadedModManager.RunningModsListForReading;
-                    for (int i = runningModsListForReading.Count - 1; i >= 0; i--)
+                    ModContentPack cmod = runningModsListForReading[i];
+                    if (cmod.PackageId == parts[0])
                     {
-                        ModContentPack cmod = runningModsListForReading[i];
-                        if (cmod.PackageId == parts[0])
+                        //If NOLOADER detected then we mark the theme as wishing to deactivate the loader
+                        if (!DBNoLoader.ContainsKey(Settings.curTheme))
                         {
-                            //If NOLOADER detected then we mark the theme as wishing to deactivate the loader
-                            if (!DBNoLoader.ContainsKey(Settings.curTheme))
+                            string loaderPathNL = cmod.RootDir + Path.DirectorySeparatorChar + "RimThemes" + Path.DirectorySeparatorChar + parts[1] + Path.DirectorySeparatorChar + "Loader" + Path.DirectorySeparatorChar + "NOLOADER";
+                            if (File.Exists(loaderPathNL))
                             {
-                                string loaderPathNL = cmod.RootDir + Path.DirectorySeparatorChar + "RimThemes" + Path.DirectorySeparatorChar + parts[1] + Path.DirectorySeparatorChar + "Loader" + Path.DirectorySeparatorChar + "NOLOADER";
-                                if (File.Exists(loaderPathNL))
-                                {
-                                    DBNoLoader[Settings.curTheme] = true;
-                                    return null;
-                                }
-                                else
-                                {
-                                    DBNoLoader[Settings.curTheme] = false;
-                                }
+                                DBNoLoader[Settings.curTheme] = true;
+                                return null;
                             }
-
-                            //Loading meta.xml if applicable (dependency with loaderFPS)
-                            string pathMeta = cmod.RootDir + Path.DirectorySeparatorChar + "RimThemes"
-                                + Path.DirectorySeparatorChar + parts[1] + Path.DirectorySeparatorChar + "meta.xml";
-
-                            if (File.Exists(pathMeta))
+                            else
                             {
-                                try
-                                {
-                                    Themes.processMetaXML(Settings.curTheme, pathMeta);
-                                }
-                                catch (Exception e)
-                                {
-                                    Themes.LogError("getThemeLoader processing meta.xml : " + e.Message);
-                                }
+                                DBNoLoader[Settings.curTheme] = false;
                             }
+                        }
 
-                            //Check if existence Loader.png for the mod
-                            string loaderPath = cmod.RootDir + Path.DirectorySeparatorChar + "RimThemes" + Path.DirectorySeparatorChar + parts[1] + Path.DirectorySeparatorChar + "Loader" + Path.DirectorySeparatorChar + "Loader.png";
-                            if (File.Exists(loaderPath))
+                        //Loading meta.xml if applicable (dependency with loaderFPS)
+                        string pathMeta = cmod.RootDir + Path.DirectorySeparatorChar + "RimThemes"
+                                          + Path.DirectorySeparatorChar + parts[1] + Path.DirectorySeparatorChar + "meta.xml";
+
+                        if (File.Exists(pathMeta))
+                        {
+                            try
                             {
-                                if (loadCustomThemeLoader(loaderPath))
-                                {
-                                    DBLoaderNotFound[Settings.curTheme] = false;
-                                    return DBLoader[Settings.curTheme];
-                                }
-                                else
-                                {
-                                    DBLoaderNotFound[Settings.curTheme] = true;
-                                    return getDefaultLoader();
-                                }
+                                Themes.processMetaXML(Settings.curTheme, pathMeta);
+                            }
+                            catch (Exception e)
+                            {
+                                Themes.LogError("getThemeLoader processing meta.xml : " + e.Message);
+                            }
+                        }
+
+                        //Check if existence Loader.png for the mod
+                        string loaderPath = cmod.RootDir + Path.DirectorySeparatorChar + "RimThemes" + Path.DirectorySeparatorChar + parts[1] + Path.DirectorySeparatorChar + "Loader" + Path.DirectorySeparatorChar + "Loader.png";
+                        if (File.Exists(loaderPath))
+                        {
+                            if (loadCustomThemeLoader(loaderPath))
+                            {
+                                DBLoaderNotFound[Settings.curTheme] = false;
+                                return DBLoader[Settings.curTheme];
+                            }
+                            else
+                            {
+                                DBLoaderNotFound[Settings.curTheme] = true;
+                                return getDefaultLoader();
                             }
                         }
                     }
-
-                    //No loader found for the current theme, we return the default one
-                    return getDefaultLoader();
                 }
+
+                //No loader found for the current theme, we return the default one
+                return getDefaultLoader();
             }
         }
 
@@ -1757,13 +1751,12 @@ namespace aRandomKiwi.RimThemes
             try
             {
                 APNG png = new APNG(File.ReadAllBytes(customLoaderPath));
-                DBLoader[Settings.curTheme] = new Texture2D[png.Frames.Count()];
+                DBLoader[Settings.curTheme] = new Texture2D[png.Frames.Length];
                 LibAPNG.Frame[] frames = png.Frames;
-                Texture2D curTex;
 
-                for (var i = 0; i != frames.Count(); i++)
+                for (var i = 0; i != frames.Length; i++)
                 {
-                    curTex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
+                    var curTex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
                     curTex.LoadImage(frames[i].GetStream().ToArray());
                     DBLoader[Settings.curTheme][i] = curTex;
                 }
@@ -1775,7 +1768,7 @@ namespace aRandomKiwi.RimThemes
                 if (DBLoader[Settings.curTheme] == null)
                     DBLoader[Settings.curTheme] = new Texture2D[1];
 
-                for (var i = 0; i != DBLoader[Settings.curTheme].Count(); i++)
+                for (var i = 0; i != DBLoader[Settings.curTheme].Length; i++)
                 {
                     DBLoader[Settings.curTheme][i] = null;
                 }
@@ -1915,9 +1908,9 @@ namespace aRandomKiwi.RimThemes
             if (settings == WindowAnim.Theme)
             {
                 //anim defined in the theme
-                if (DBWindowAnim.ContainsKey(theme))
+                if (ActiveTheme.DBWindowAnim != null)
                 {
-                    return DBWindowAnim[theme];
+                    return ActiveTheme.DBWindowAnim.Value;
                 }
                 else
                 {
@@ -2006,14 +1999,14 @@ namespace aRandomKiwi.RimThemes
         /*
          * Routine used to define a new random background
          */
-        static public void setNewRandomBg(bool force = false)
+        public static void setNewRandomBg(bool force = false)
         {
             //If user wishes to keep his current wallpaper, we force a thing to do if the call is not forced (in the case of a theme no longer available)
             if (!force && Settings.keepCurrentBg)
                 return;
 
             string ret = null;
-            if (Themes.DBAvailableThemes.Count() <= 0)
+            if (Themes.DBAvailableThemes.Count <= 0)
             {
                 Settings.curRandomBg = VanillaThemeID;
                 return;
@@ -2023,7 +2016,7 @@ namespace aRandomKiwi.RimThemes
             {
                 ret = Themes.DBAvailableThemes.RandomElement();
             }
-            while (Themes.DBAvailableThemes.Count() >= 2 && ret == Settings.curRandomBg);
+            while (Themes.DBAvailableThemes.Count >= 2 && ret == Settings.curRandomBg);
 
             //Recording of the randomly selected theme
             Settings.curRandomBg = ret;
@@ -2033,7 +2026,7 @@ namespace aRandomKiwi.RimThemes
         /*
          * Obtaining the video / image wallpaper of the applicable theme according to the parameters
          */
-        static public string getCustomBackgroundApplyableTheme()
+        public static string getCustomBackgroundApplyableTheme()
         {
             //If random change of backgrouund disabled OR if it is enabled AND the textures have still not been loaded we define the current theme as the normal theme 
             if (Settings.disableRandomBg || !LoaderGM.themeTexAlreadyLoaded || LoaderGM.curStep <= LoaderSteps.FinishUp)
@@ -2064,111 +2057,113 @@ namespace aRandomKiwi.RimThemes
             }
         }
 
+        public static ActiveTheme ActiveTheme = new();
+
         //Storage of fix tables in case of field / class name change to avoid breaking themes
-        static public Dictionary<string, string> DBFix = new Dictionary<string, string>();
+        public static readonly Dictionary<string, string> DBFix = new();
 
-        static public List<string> DBAvailableThemes = new List<string>();
+        public static readonly List<string> DBAvailableThemes = new();
         //Storage of effects data
-        static public Dictionary<string, float> DBEffect = new Dictionary<string, float>();
+        public static readonly Dictionary<string, float> DBEffect = new();
 
-        static public List<Dictionary<string,string>> fontsToLoad = new List<Dictionary<string,string>>();
+        public static readonly List<Dictionary<string,string>> fontsToLoad = new();
 
-        static public Dictionary<string, Dictionary<GameFont, GUIStyle>> DBGUIStyle = new Dictionary<string, Dictionary<GameFont, GUIStyle>>();
-        static public Dictionary<string, Dictionary<GameFont, GUIStyle>> DBGUIStyleTextField = new Dictionary<string, Dictionary<GameFont, GUIStyle>>();
-        static public Dictionary<string, Dictionary<GameFont, GUIStyle>> DBGUIStyleTextArea = new Dictionary<string, Dictionary<GameFont, GUIStyle>>();
-        static public Dictionary<string, Dictionary<GameFont, GUIStyle>> DBGUIStyleTextAreaReadOnly = new Dictionary<string, Dictionary<GameFont, GUIStyle>>();
+        public static readonly Dictionary<string, Dictionary<GameFont, GUIStyle>> DBGUIStyle = new();
+        public static readonly Dictionary<string, Dictionary<GameFont, GUIStyle>> DBGUIStyleTextField = new();
+        public static readonly Dictionary<string, Dictionary<GameFont, GUIStyle>> DBGUIStyleTextArea = new();
+        public static readonly Dictionary<string, Dictionary<GameFont, GUIStyle>> DBGUIStyleTextAreaReadOnly = new();
 
-        static public Dictionary<string, Dictionary<GameFont, float>> DBGUIStyleLineHeight = new Dictionary<string, Dictionary<GameFont, float>>();
-        static public Dictionary<string, Dictionary<GameFont, float>> DBGUIStyleSpaceBetweenLine = new Dictionary<string, Dictionary<GameFont, float>>();
+        public static readonly Dictionary<string, Dictionary<GameFont, float>> DBGUIStyleLineHeight = new();
+        public static readonly Dictionary<string, Dictionary<GameFont, float>> DBGUIStyleSpaceBetweenLine = new();
 
         //Byte [] dictionaries before conversion to textures
-        static public Dictionary<string, byte[]> RDBTexThemeIcon = new Dictionary<string, byte[]>();
-        static public Dictionary<string, byte[]> RDBTexParticle = new Dictionary<string, byte[]>();
-        static public Dictionary<string, byte[]> RDBTexTapestry = new Dictionary<string, byte[]>();
-        static public Dictionary<string, byte[][]> RDBLoader = new Dictionary<string, byte[][]>();
-        static public Dictionary<string, byte[]> RDBBGLoader = new Dictionary<string, byte[]>();
-        static public Dictionary<string, byte[]> RDBTexLoaderBar = new Dictionary<string, byte[]>();
-        static public Dictionary<string, byte[]> RDBTexLoaderText = new Dictionary<string, byte[]>();
-        static public Dictionary<string, Dictionary<string, Dictionary<string, byte[]>>> RDBTex = new Dictionary<string, Dictionary<string, Dictionary<string, byte[]>>>();
+        public static readonly Dictionary<string, byte[]> RDBTexThemeIcon = new();
+        public static readonly Dictionary<string, byte[]> RDBTexParticle = new();
+        public static readonly Dictionary<string, byte[]> RDBTexTapestry = new();
+        public static readonly Dictionary<string, byte[][]> RDBLoader = new();
+        public static readonly Dictionary<string, byte[]> RDBBGLoader = new();
+        public static readonly Dictionary<string, byte[]> RDBTexLoaderBar = new();
+        public static readonly Dictionary<string, byte[]> RDBTexLoaderText = new();
+        public static readonly Dictionary<string, Dictionary<string, Dictionary<string, byte[]>>> RDBTex = new();
 
         //Texture dictionaries
-        static public Dictionary<string, Texture2D> DBTexThemeIcon = new Dictionary<string, Texture2D>();
-        static public Dictionary<string, Texture2D> DBTexParticle = new Dictionary<string, Texture2D>();
-        static public Dictionary<string, Texture2D> DBTexTapestry = new Dictionary<string, Texture2D>();
-        static public Dictionary<string, Texture2D[]> DBLoader = new Dictionary<string, Texture2D[]>();
-        static public Dictionary<string, bool> DBNoLoader = new Dictionary<string, bool>();
-        static public Dictionary<string, bool> DBLoaderNotFound = new Dictionary<string, bool>();
-        static public Dictionary<string, Texture2D> DBBGLoader = new Dictionary<string, Texture2D>();
-        static public Dictionary<string, Texture2D> DBTexLoaderBar = new Dictionary<string, Texture2D>();
-        static public Dictionary<string, Texture2D> DBTexLoaderText = new Dictionary<string, Texture2D>();
-        static public Dictionary<string, Dictionary<string, Dictionary<string, Texture2D>>> DBTex = new Dictionary<string, Dictionary<string, Dictionary<string, Texture2D>>>();
+        public static readonly Dictionary<string, Texture2D> DBTexThemeIcon = new();
+        public static readonly Dictionary<string, Texture2D> DBTexParticle = new();
+        public static readonly Dictionary<string, Texture2D> DBTexTapestry = new();
+        public static readonly Dictionary<string, Texture2D[]> DBLoader = new();
+        public static readonly Dictionary<string, bool> DBNoLoader = new();
+        public static readonly Dictionary<string, bool> DBLoaderNotFound = new();
+        public static readonly Dictionary<string, Texture2D> DBBGLoader = new();
+        public static readonly Dictionary<string, Texture2D> DBTexLoaderBar = new();
+        public static readonly Dictionary<string, Texture2D> DBTexLoaderText = new();
+        public static readonly Dictionary<string, Dictionary<string, Dictionary<string, Texture2D>>> DBTex = new();
 
         //Animated background
-        static public Dictionary<string, string> DBAnimatedBackground = new Dictionary<string, string>();
+        public static readonly Dictionary<string, string> DBAnimatedBackground = new();
 
         //Text color by theme
-        static public Dictionary<string, Color> DBTextColorWhite = new Dictionary<string, Color>();
-        static public Dictionary<string, Color> DBTextColorYellow = new Dictionary<string, Color>();
-        static public Dictionary<string, Color> DBTextColorGreen = new Dictionary<string, Color>();
-        static public Dictionary<string, Color> DBTextColorRed = new Dictionary<string, Color>();
-        static public Dictionary<string, Color> DBTextColorCyan = new Dictionary<string, Color>();
-        static public Dictionary<string, Color> DBTextColorBlue = new Dictionary<string, Color>();
-        static public Dictionary<string, Color> DBTextColorGray = new Dictionary<string, Color>();
-        static public Dictionary<string, Color> DBTextColorMagenta = new Dictionary<string, Color>();
+        public static readonly Dictionary<string, Color> DBTextColorWhite = new();
+        public static readonly Dictionary<string, Color> DBTextColorYellow = new();
+        public static readonly Dictionary<string, Color> DBTextColorGreen = new();
+        public static readonly Dictionary<string, Color> DBTextColorRed = new();
+        public static readonly Dictionary<string, Color> DBTextColorCyan = new();
+        public static readonly Dictionary<string, Color> DBTextColorBlue = new();
+        public static readonly Dictionary<string, Color> DBTextColorGray = new();
+        public static readonly Dictionary<string, Color> DBTextColorMagenta = new();
 
 
         //Texture color by theme
-        static public Dictionary<string, Color> DBTexColorWhite = new Dictionary<string, Color>();
-        static public Dictionary<string, Color> DBTexColorYellow = new Dictionary<string, Color>();
-        static public Dictionary<string, Color> DBTexColorGreen = new Dictionary<string, Color>();
-        static public Dictionary<string, Color> DBTexColorRed = new Dictionary<string, Color>();
-        static public Dictionary<string, Color> DBTexColorCyan = new Dictionary<string, Color>();
-        static public Dictionary<string, Color> DBTexColorBlue = new Dictionary<string, Color>();
-        static public Dictionary<string, Color> DBTexColorGray = new Dictionary<string, Color>();
-        static public Dictionary<string, Color> DBTexColorMagenta = new Dictionary<string, Color>();
+        public static readonly Dictionary<string, Color> DBTexColorWhite = new();
+        public static readonly Dictionary<string, Color> DBTexColorYellow = new();
+        public static readonly Dictionary<string, Color> DBTexColorGreen = new();
+        public static readonly Dictionary<string, Color> DBTexColorRed = new();
+        public static readonly Dictionary<string, Color> DBTexColorCyan = new();
+        public static readonly Dictionary<string, Color> DBTexColorBlue = new();
+        public static readonly Dictionary<string, Color> DBTexColorGray = new();
+        public static readonly Dictionary<string, Color> DBTexColorMagenta = new();
 
         //Neutral color of factions
-        static public Dictionary<string, Color> DBTextColorFactionsNeutral = new Dictionary<string, Color>();
+        public static readonly Dictionary<string, Color> DBTextColorFactionsNeutral = new();
 
-        static public Dictionary<string, WindowAnim> DBWindowAnim = new Dictionary<string, WindowAnim>();
-        static public Dictionary<string, Dictionary<string, Dictionary<string,Color>>> DBColor = new Dictionary<string, Dictionary<string, Dictionary<string,Color>>>();
-        static public Dictionary<string, Dictionary<string, AudioGrain_ClipTheme>> DBSound = new Dictionary<string, Dictionary<string, AudioGrain_ClipTheme>>();
-        static public Dictionary<string, Dictionary<string, AudioClip>> DBSong = new Dictionary<string, Dictionary<string, AudioClip>>();
-        static public Dictionary<string, Dictionary<string, string>> DBText = new Dictionary<string, Dictionary<string, string>>();
-        static public Dictionary<string, Dictionary<string, int>> DBVal = new Dictionary<string, Dictionary<string, int>>();
-        static public Dictionary<string,Dictionary<string,string>> DBModInfo = new Dictionary<string, Dictionary<string, string>>();
-        static public Dictionary<string, Dictionary<Color,Color>> DBDynColor = new Dictionary<string, Dictionary<Color,Color>>();
+        public static readonly Dictionary<string, WindowAnim> DBWindowAnim = new();
+        public static readonly Dictionary<string, Dictionary<string, Dictionary<string,Color>>> DBColor = new();
+        public static readonly Dictionary<string, Dictionary<string, AudioGrain_ClipTheme>> DBSound = new();
+        public static readonly Dictionary<string, Dictionary<string, AudioClip>> DBSong = new();
+        public static readonly Dictionary<string, Dictionary<string, string>> DBText = new();
+        public static readonly Dictionary<string, Dictionary<string, int>> DBVal = new();
+        public static readonly Dictionary<string, Dictionary<string, string>> DBModInfo = new();
+        public static readonly Dictionary<string, Dictionary<Color, Color>> DBDynColor = new();
 
         //List of music files to load (EntrySong)
-        static public Dictionary<string, Dictionary<string, string>> DBSongsToLoad = new Dictionary<string, Dictionary<string, string>>();
+        public static readonly Dictionary<string, Dictionary<string, string>> DBSongsToLoad = new();
         //List of font packs to load
-        static public List<string> DBfontsBundleToLoad = new List<string>();
+        public static readonly List<string> DBfontsBundleToLoad = new();
 
         //Storage of Namespaces, if any, different from Verse for className (Default "Verse")
-        static public Dictionary<string,string> fieldsOfInterestTexNS = new Dictionary<string,string>();
-        static public Dictionary<string,string> fieldsOfInterestColorNS = new Dictionary<string,string>();
+        public static readonly Dictionary<string,string> fieldsOfInterestTexNS = new();
+        public static readonly Dictionary<string,string> fieldsOfInterestColorNS = new();
         //Storage of className + fields of interest for mod themes
-        static public Dictionary<string, List<FOI>> fieldsOfInterestTex = new Dictionary<string, List<FOI>>();
-        static public Dictionary<string, List<FOI>> fieldsOfInterestColor = new Dictionary<string, List<FOI>>();
+        public static readonly Dictionary<string, List<FOI>> fieldsOfInterestTex = new();
+        public static readonly Dictionary<string, List<FOI>> fieldsOfInterestColor = new();
 
 
-        static public Dictionary<string, Font> DBTinyFontByTheme = new Dictionary<string, Font>();
-        static public Dictionary<string, int> DBTinyFontSizeByTheme = new Dictionary<string, int>();
+        public static Dictionary<string, Font> DBTinyFontByTheme = new();
+        public static Dictionary<string, int> DBTinyFontSizeByTheme = new();
 
-        static public string VanillaThemeID = "-1§Vanilla";
-        static public string MiscKey = "_Misc_";
-        static public Dictionary<string, List<ResolvedGrain>> DBVanillaResolvedGrains = new Dictionary<string,List<ResolvedGrain>>();
-        static public List<AssetBundle> fontsPackage = new List<AssetBundle>();
-        static public string forcedFontTheme = "";
-        static public Texture2D TexLoaderBar;
-        static public Texture2D TexLoaderText;
+        public const string VanillaThemeID = "-1§Vanilla";
+        public const string MiscKey = "_Misc_";
+        public static Dictionary<string, List<ResolvedGrain>> DBVanillaResolvedGrains = new();
+        public static List<AssetBundle> fontsPackage = new();
+        public static string forcedFontTheme = "";
+        public static Texture2D TexLoaderBar;
+        public static Texture2D TexLoaderText;
 
         //Define if everything is ok for the themes
-        static public bool initialized = false;
-        static public bool cursorFirstSet = false;
-        static public bool vanillaGrainsSaved = false;
-        static public bool vanillaSongGrainsSaved = false;
-        static public bool vanillaThemeSaved = false;
-        static public bool currentThemeExist = true;
+        public static bool initialized = false;
+        public static bool cursorFirstSet = false;
+        public static bool vanillaGrainsSaved = false;
+        public static bool vanillaSongGrainsSaved = false;
+        public static bool vanillaThemeSaved = false;
+        public static bool currentThemeExist = true;
     }
 }

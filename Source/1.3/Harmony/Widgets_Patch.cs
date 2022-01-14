@@ -231,7 +231,7 @@ namespace aRandomKiwi.RimThemes
             try
             {
                 //If existing upholstery
-                if (!Settings.disableTapestry && Themes.DBTexTapestry.ContainsKey(Settings.curTheme) && Themes.DBTexTapestry[Settings.curTheme] != null)
+                if (!Settings.disableTapestry && Themes.ActiveTheme.DBTexTapestry != null)
                 {
                     ScaleMode csm = ScaleMode.StretchToFill;
                     string currentScaleMode = Themes.getText("tapestryscalemode");
@@ -247,7 +247,7 @@ namespace aRandomKiwi.RimThemes
                     GUI.color = cc;
 
                     //Widgets.ButtonImage(rect, Themes.DBTexTapestry[Settings.curTheme], Color.white, Color.white);
-                    GUI.DrawTexture(rect, Themes.DBTexTapestry[Settings.curTheme], csm);
+                    GUI.DrawTexture(rect, Themes.ActiveTheme.DBTexTapestry, csm);
                     GUI.color = Themes.getColorMisc("tapestrybordercolor");
                     Widgets.DrawBox(rect, 1, null);
                     GUI.color = Color.white;

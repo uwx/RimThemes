@@ -35,23 +35,19 @@ namespace aRandomKiwi.RimThemes
                     UI.ApplyUIScale();
 
                     //Background
-                    bool flag = true;
-                    if ((float)UI.screenWidth > (float)UI.screenHeight * (BGPlanetSize.x / BGPlanetSize.y))
-                    {
-                        flag = false;
-                    }
+                    bool flag = !(UI.screenWidth > UI.screenHeight * (BGPlanetSize.x / BGPlanetSize.y));
                     Rect position;
                     if (flag)
                     {
-                        float height = (float)UI.screenHeight;
-                        float num = (float)UI.screenHeight * (BGPlanetSize.x / BGPlanetSize.y);
-                        position = new Rect((float)(UI.screenWidth / 2) - num / 2f, 0f, num, height);
+                        float height = UI.screenHeight;
+                        float num = UI.screenHeight * (BGPlanetSize.x / BGPlanetSize.y);
+                        position = new Rect(UI.screenWidth / 2 - num / 2f, 0f, num, height);
                     }
                     else
                     {
-                        float width = (float)UI.screenWidth;
-                        float num2 = (float)UI.screenWidth * (BGPlanetSize.y / BGPlanetSize.x);
-                        position = new Rect(0f, (float)(UI.screenHeight / 2) - num2 / 2f, width, num2);
+                        float width = UI.screenWidth;
+                        float num2 = UI.screenWidth * (BGPlanetSize.y / BGPlanetSize.x);
+                        position = new Rect(0f, UI.screenHeight / 2 - num2 / 2f, width, num2);
                     }
                     GUI.DrawTexture(position, getThemeRscLoader(LoaderRSC.BGLoader), ScaleMode.ScaleToFit);
 
@@ -136,12 +132,14 @@ namespace aRandomKiwi.RimThemes
                     switch (themeLoadMode) {
                         case 0:
                             if (curTheme == "")
+                            {
                                 text = "RimThemes_LoaderThemesPreloading1".Translate();
+                            }
                             else
                             {
                                 text = "RimThemes_LoaderThemesPreloading2".Translate(curTheme);
                             }
-                        break;
+                            break;
                         case 1:
                             text = "RimThemes_LoaderThemesLoadingTex".Translate();
                         break;
@@ -163,14 +161,14 @@ namespace aRandomKiwi.RimThemes
                         name = "";
 
                     text = "Loading Defs : "+nbCurModsLoaded+" / "+nbModsToLoad+name;
-                    loaderLvl = 10+ (int)((float)((float)nbCurModsLoaded / (float)nbModsToLoad) * (float)10);
+                    loaderLvl = 10+ (int)(nbCurModsLoaded / (float)nbModsToLoad * 10);
                     break;
                 case LoaderSteps.CombineXML:
                     text = "Building Def Tree...";
                     loaderLvl = 20;
                     break;
                 case LoaderSteps.Patching:
-                    if (curPatching!= null && curPatching.Name != null && curPatching.Name.Length != 0)
+                    if (curPatching?.Name != null && curPatching.Name.Length != 0)
                         name = " - " + curPatching.Name;
                     else
                         name = "";
@@ -180,10 +178,10 @@ namespace aRandomKiwi.RimThemes
                     break;
                 case LoaderSteps.ParsingXML:
                     text = "Parsing Defs : "+nbDefs+" / "+nbDefsToProcess;
-                    loaderLvl = 30 + (int)((float)((float)nbDefs / (float)nbDefsToProcess) * (float)50);
+                    loaderLvl = 30 + (int)(nbDefs / (float)nbDefsToProcess * 50);
                     break;
                 case LoaderSteps.ResolvingReferences:
-                    if (curDefResolving != null && curDefResolving.Name != null && curDefResolving.Name.Length != 0)
+                    if (curDefResolving?.Name?.Length != 0)
                         name = " - " + curDefResolving.Name;
                     else
                         name = "";
@@ -192,7 +190,7 @@ namespace aRandomKiwi.RimThemes
                     loaderLvl = 90;
                     break;
                 case LoaderSteps.FinishUp:
-                    if (curConstructor != null && curConstructor.Name != null && curConstructor.Name.Length != 0)
+                    if (curConstructor?.Name?.Length != 0)
                         name = " - " + curConstructor.Name;
                     else
                         name = "";
@@ -280,7 +278,7 @@ namespace aRandomKiwi.RimThemes
                     break;
             }
             //Loader
-            Rect rectLoader = new Rect(0, UI.screenHeight - 70, (int)((float)UI.screenWidth*((float)loaderLvl/100)), 10);
+            Rect rectLoader = new Rect(0, UI.screenHeight - 70, (int)(UI.screenWidth*((float)loaderLvl/100)), 10);
             GUI.DrawTexture(rectLoader, getThemeRscLoader(LoaderRSC.LoaderBar), ScaleMode.StretchToFill);
 
             //If reference to loading text not cached
@@ -300,7 +298,7 @@ namespace aRandomKiwi.RimThemes
             Texture2D tex;
 
             //Icones de theme
-            nb = Themes.RDBTexThemeIcon.Count();
+            nb = Themes.RDBTexThemeIcon.Count;
             if (nb != 0)
             {    
                 foreach(var entry in Themes.RDBTexThemeIcon)
@@ -318,7 +316,7 @@ namespace aRandomKiwi.RimThemes
             }
 
             //Particles 
-            nb = Themes.RDBTexParticle.Count();
+            nb = Themes.RDBTexParticle.Count;
             if (nb != 0)
             {
                 foreach (var entry in Themes.RDBTexParticle)
@@ -336,7 +334,7 @@ namespace aRandomKiwi.RimThemes
             }
 
             //Tapestries
-            nb = Themes.RDBTexTapestry.Count();
+            nb = Themes.RDBTexTapestry.Count;
             if (nb != 0)
             {
                 foreach (var entry in Themes.RDBTexTapestry)
@@ -354,7 +352,7 @@ namespace aRandomKiwi.RimThemes
             }
 
             //Loader TextBar
-            nb = Themes.RDBTexLoaderText.Count();
+            nb = Themes.RDBTexLoaderText.Count;
             if (nb != 0)
             {
                 foreach (var entry in Themes.RDBTexLoaderText)
@@ -372,7 +370,7 @@ namespace aRandomKiwi.RimThemes
             }
 
             //Loader texture
-            nb = Themes.RDBTexLoaderBar.Count();
+            nb = Themes.RDBTexLoaderBar.Count;
             if (nb != 0)
             {
                 foreach (var entry in Themes.RDBTexLoaderBar)
@@ -390,12 +388,12 @@ namespace aRandomKiwi.RimThemes
             }
 
             //Loaders
-            nb = Themes.RDBLoader.Count();
+            nb = Themes.RDBLoader.Count;
             if (nb != 0)
             {
                 foreach (var entry in Themes.RDBLoader)
                 {
-                    for(i =0; i != entry.Value.Count();i++)
+                    for(i =0; i != entry.Value.Length;i++)
                     {
                         if (entry.Value[i] != null)
                         {
@@ -411,7 +409,7 @@ namespace aRandomKiwi.RimThemes
             }
 
             // bacjkground loader
-            nb = Themes.RDBBGLoader.Count();
+            nb = Themes.RDBBGLoader.Count;
             if (nb != 0)
             {
                 foreach (var entry in Themes.RDBBGLoader)
@@ -429,7 +427,7 @@ namespace aRandomKiwi.RimThemes
             }
 
             // The textures of the themes themselves
-            nb = Themes.RDBTex.Count();
+            nb = Themes.RDBTex.Count;
             if (nb != 0)
             {
                 foreach (var entry in Themes.RDBTex)

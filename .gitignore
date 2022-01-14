@@ -11,5 +11,7 @@
 **/.vs
 **/obj/Debug
 **/obj
+**/bin
 obj/
 .vs/
+**/.idea/workspace.xml

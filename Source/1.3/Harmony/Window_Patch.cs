@@ -149,7 +149,7 @@ namespace aRandomKiwi.RimThemes
                     || (__instance is EditWindow)))
                 {
 
-                    if (Utils.lastShowedWin.Count() != 0 && Utils.lastShowedWin.Last().type == 2)
+                    if (Utils.lastShowedWin.Count != 0 && Utils.lastShowedWin.Last().type == 2)
                     {
                         if (__instance.layer == WindowLayer.GameUI && __instance.ID == -235086)
                             return true;
