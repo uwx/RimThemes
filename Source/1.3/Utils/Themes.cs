@@ -1225,8 +1225,8 @@ namespace aRandomKiwi.RimThemes
             const string theme = VanillaThemeID;
             
             db[theme] = new Dictionary<string, Dictionary<string, T>>();
-            Dictionary<string, List<FOI>> curFOI = fieldsOfInterestTex;
-            bool typeTex = true;
+            var curFOI = fieldsOfInterestTex;
+            var typeTex = true;
 
             if (typeof(T) != typeof(Texture2D))
             {
@@ -1241,7 +1241,7 @@ namespace aRandomKiwi.RimThemes
                 {
                     db[theme][key] = new Dictionary<string, T>();
                     //Namespace deduction
-                    string ns = "Verse";
+                    var ns = "Verse";
                     if (typeTex)
                     {
                         if (fieldsOfInterestTexNS.TryGetValue(key, out var ns1))
@@ -1254,7 +1254,7 @@ namespace aRandomKiwi.RimThemes
                     }
 
                     //Obtaining the type
-                    Type classType = typeof(FloatMenuOption).Assembly.GetType(ns + "." + key);
+                    var classType = typeof(FloatMenuOption).Assembly.GetType(ns + "." + key);
 
                     //For each of the texture variables of interest we save the texture reference
                     foreach (var field in value)
@@ -1265,14 +1265,14 @@ namespace aRandomKiwi.RimThemes
                             //We duplicate the textures and the data in memory
                             if (typeTex)
                             {
-                                Dictionary<string,Texture2D> savedTex = (Dictionary<string,Texture2D>)((object)db[theme][key]);
-                                Texture2D curTex = ((Texture2D)classType.GetField(field.field, field.bf).GetValue(null));
-                                savedTex[field.field] = new Texture2D(curTex.width, curTex.height, TextureFormat.RGBA32, false);
-                                savedTex[field.field].LoadImage(curTex.EncodeToPNG());
+                                var savedTex = (Dictionary<string, Texture2D>) (object) db[theme][key];
+                                var curTex = (Texture2D) classType.GetField(field.field, field.bf).GetValue(null);
+                                savedTex[field.field] = new Texture2D(curTex.width, curTex.height, curTex.format, curTex.mipmapCount, false);
+                                Graphics.CopyTexture(curTex, savedTex[field.field]);
                             }
                             else
                             {
-                                Dictionary<string,Color> savedColor = (Dictionary<string,Color>)((object)db[theme][key]);
+                                var savedColor = (Dictionary<string, Color>) (object) db[theme][key];
                                 savedColor[field.field] = (Color)classType.GetField(field.field, field.bf).GetValue(null);
                             }
                         }
@@ -1280,18 +1280,27 @@ namespace aRandomKiwi.RimThemes
                         {
                             try
                             {
-                                Dictionary<string, Texture2D> savedTex = (Dictionary<string, Texture2D>)((object)db[theme][key]);
-                                Texture2D curTex = ((Texture2D)classType.GetField(field.field, field.bf).GetValue(null));
+                                var savedTex = (Dictionary<string, Texture2D>) (object) db[theme][key];
+                                var curTex = (Texture2D) classType.GetField(field.field, field.bf).GetValue(null);
                                 curTex.filterMode = FilterMode.Point;
-                                RenderTexture rt = RenderTexture.GetTemporary(curTex.width, curTex.height);
+                                
+                                var rt = RenderTexture.GetTemporary(curTex.width, curTex.height);
                                 RenderTexture.active = rt;
-                                Graphics.Blit(curTex, rt);
-                                Texture2D img2 = new Texture2D(curTex.width, curTex.height, TextureFormat.RGBA32, false);
-                                img2.ReadPixels(new Rect(0, 0, curTex.width, curTex.height), 0, 0, false);
-                                img2.Apply(false);
-                                RenderTexture.active = null;
-                                savedTex[field.field].LoadImage(img2.EncodeToPNG());
-                                rt.Release();
+                                try
+                                {
+                                    Graphics.Blit(curTex, rt);
+
+                                    var img2 = new Texture2D(curTex.width, curTex.height, TextureFormat.RGBA32, false);
+                                    img2.ReadPixels(new Rect(0, 0, curTex.width, curTex.height), 0, 0, false);
+                                    img2.Apply(false);
+
+                                    Graphics.CopyTexture(img2, savedTex[field.field]);
+                                }
+                                finally
+                                {
+                                    RenderTexture.active = null;
+                                    rt.Release();
+                                }
                             }
                             catch (Exception e)
                             {
@@ -1342,11 +1351,11 @@ namespace aRandomKiwi.RimThemes
                     ? result
                     : null;
 
-            if (DBTex.TryGetValue(dtheme, out var p1) && p1.TryGetValue(className, out var p2) && p2.TryGetValue(fieldName, out var p3) && p3 != null)
+            if (DBTex.TryGetValue(dtheme, out var p1) && p1.TryGetValue(className, out var p2) && p2.TryGetValue(fieldName, out var p3) && !ReferenceEquals(p3, null))
                 return p3;
             
             //If absent, the Vanilla version is returned
-            if (DBTex.TryGetValue(VanillaThemeID, out var v1) && v1.TryGetValue(className, out var v2) && v2.TryGetValue(fieldName, out var v3) && v3 != null)
+            if (DBTex.TryGetValue(VanillaThemeID, out var v1) && v1.TryGetValue(className, out var v2) && v2.TryGetValue(fieldName, out var v3) && !ReferenceEquals(v3, null))
                 return v3;
 
             return null;
