@@ -38,24 +38,19 @@ namespace aRandomKiwi.RimThemes
                     if (buttonNoTex is not "true")
                     {
                         Texture2D atlas;
-                        //if (color != Color.white)
-                            // atlas = Themes.DBTex[Themes.VanillaThemeID]["Widgets"]["ButtonBGAtlas"];
-                        //else
-                            atlas = Themes.getThemeTex("Widgets", "ButtonBGAtlas");
-                        if (Mouse.IsOver(rect))
+                        if (Input.GetMouseButton(0))
                         {
-                            //if (color != Color.white)
-                                //atlas = Themes.DBTex[Themes.VanillaThemeID]["Widgets"]["ButtonBGAtlasMouseover"];
-                            //else
-                                atlas = Themes.getThemeTex("Widgets", "ButtonBGAtlasMouseover");
-                            if (Input.GetMouseButton(0))
-                            {
-                                //if (color != Color.white)
-                                //    atlas = Themes.DBTex[Themes.VanillaThemeID]["Widgets"]["ButtonBGAtlasClick"];
-                                //else
-                                    atlas = Themes.getThemeTex("Widgets", "ButtonBGAtlasClick");
-                            }
+                            atlas = Themes.getThemeTex("Widgets", "ButtonBGAtlasClick");
                         }
+                        else if (Mouse.IsOver(rect))
+                        {
+                            atlas = Themes.getThemeTex("Widgets", "ButtonBGAtlasMouseover");
+                        }
+                        else
+                        {
+                            atlas = Themes.getThemeTex("Widgets", "ButtonBGAtlas");
+                        }
+
                         Widgets.DrawAtlas(rect, atlas);
                     }
                     else
@@ -105,14 +100,7 @@ namespace aRandomKiwi.RimThemes
                         GUI.color = Widgets.MouseoverOptionColor;
                     }
                 }
-                if (drawBackground)
-                {
-                    Text.Anchor = TextAnchor.MiddleCenter;
-                }
-                else
-                {
-                    Text.Anchor = TextAnchor.MiddleLeft;
-                }
+                Text.Anchor = drawBackground ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft;
                 bool wordWrap = Text.WordWrap;
                 if (rect.height < Text.LineHeight * 2f)
                 {
