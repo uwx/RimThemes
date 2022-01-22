@@ -12,7 +12,7 @@ using HarmonyLib;
 
 namespace aRandomKiwi.RimThemes
 {
-        [HarmonyPatch(typeof(Current), "Notify_LoadedSceneChanged"), StaticConstructorOnStartup]
+        [HarmonyPatch(typeof(Current), "Notify_LoadedSceneChanged")]
         class Notify_LoadedSceneChanged_Patch
         {
             [HarmonyPostfix]
@@ -25,7 +25,7 @@ namespace aRandomKiwi.RimThemes
                         Themes.setNewRandomBg();
 
                     LoaderGM comp = GameObject.Find("Camera").AddComponent<LoaderGM>() as LoaderGM;
-                 }
+                }
                 else
                 {
                     LoaderGM comp = GameObject.Find("Camera").AddComponent<LoaderGM>() as LoaderGM;

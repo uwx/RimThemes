@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace aRandomKiwi.RimThemes
 {
-    [HarmonyPatch(typeof(MainMenuDrawer), "MainMenuOnGUI"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(MainMenuDrawer), "MainMenuOnGUI")]
     class MainMenuOnGUI_Patch
     {
         [HarmonyPrefix]
@@ -160,7 +160,7 @@ namespace aRandomKiwi.RimThemes
     }
 
 
-    [HarmonyPatch(typeof(MainMenuDrawer), "DoMainMenuControls"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(MainMenuDrawer), "DoMainMenuControls")]
     class DoMainMenuControls_Patch
     {
         [HarmonyPostfix]
@@ -192,7 +192,7 @@ namespace aRandomKiwi.RimThemes
                         }
                         catch(Exception e)
                         {
-                            Themes.LogError("Patch MainMenuDrawer.DoWindowContents updateDialog error : " + e.Message);
+                            Themes.LogException("Patch MainMenuDrawer.DoWindowContents updateDialog error : ", e);
                         }
                     }
                 }
@@ -271,7 +271,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch(Exception e)
             {
-                Themes.LogError("Patch failed : MainMenuDrawer.DoWindowContents : " + e.Message);
+                Themes.LogException("Patch failed : MainMenuDrawer.DoWindowContents : ", e);
             }
         }
     }

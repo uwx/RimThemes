@@ -29,7 +29,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch (Exception e)
             {
-                Themes.LogError("ModContentPack.AnyContentLoaded patch failed : " + e.Message);
+                Themes.LogException("ModContentPack.AnyContentLoaded patch failed : ", e);
             }
         }
     }

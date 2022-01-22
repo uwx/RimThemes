@@ -12,7 +12,7 @@ using HarmonyLib;
 
 namespace aRandomKiwi.RimThemes
 {
-    [HarmonyPatch(typeof(Window), "WindowOnGUI"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Window), "WindowOnGUI")]
     class WindowStackOnGUI_Patch
     {
         [HarmonyPrefix]
@@ -189,13 +189,13 @@ namespace aRandomKiwi.RimThemes
             }
             catch (Exception e)
             {
-                Themes.LogError("Patch Window.WindowOnGUI failed : " + e.Message);
+                Themes.LogException("Patch Window.WindowOnGUI failed : ", e);
                 return true;
             }
         }
     }
 
-    [HarmonyPatch(typeof(Window), "Close"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Window), "Close")]
     class Window_Close_Patch
     {
         [HarmonyPostfix]
@@ -229,7 +229,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch(Exception e)
             {
-                Themes.LogError("Patch Window.Close failed : " + e.Message);
+                Themes.LogException("Patch Window.Close failed : ", e);
             }
         }
     }

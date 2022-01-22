@@ -12,7 +12,7 @@ using HarmonyLib;
 
 namespace aRandomKiwi.RimThemes
 {
-        [HarmonyPatch(typeof(Text), "get_CurFontStyle"), StaticConstructorOnStartup]
+        [HarmonyPatch(typeof(Text), "get_CurFontStyle")]
         class CurFontStyle_Patch
         {
             [HarmonyPrefix]
@@ -47,14 +47,14 @@ namespace aRandomKiwi.RimThemes
                 }
                 catch(Exception e)
                 {
-                    Themes.LogError("Patch Text.get_CurFontStyle failed : " + e.Message);
+                    Themes.LogException("Patch Text.get_CurFontStyle failed : ", e);
                     return true;
                 }
             }
         }
 
 
-    [HarmonyPatch(typeof(Text), "get_CurTextFieldStyle"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Text), "get_CurTextFieldStyle")]
     class CurTextFieldStyle_Patch
     {
         [HarmonyPrefix]
@@ -87,14 +87,14 @@ namespace aRandomKiwi.RimThemes
             }
             catch(Exception e)
             {
-                Themes.LogError("Text.get_CurTextFieldStyle patch failed : " + e.Message);
+                Themes.LogException("Text.get_CurTextFieldStyle patch failed : ", e);
                 return true;
             }
         }
     }
 
 
-    [HarmonyPatch(typeof(Text), "get_CurTextAreaStyle"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Text), "get_CurTextAreaStyle")]
     class CurTextAreaStyle_Patch
     {
         [HarmonyPrefix]
@@ -127,14 +127,14 @@ namespace aRandomKiwi.RimThemes
             }
             catch (Exception e)
             {
-                Themes.LogError("Text.get_CurTextAreaStyle patch failed : " + e.Message);
+                Themes.LogException("Text.get_CurTextAreaStyle patch failed : ", e);
                 return true;
             }
         }
     }
 
 
-    [HarmonyPatch(typeof(Text), "get_CurTextAreaReadOnlyStyle"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Text), "get_CurTextAreaReadOnlyStyle")]
     class CurTextAreaReadOnlyStyle_Patch
     {
         [HarmonyPrefix]
@@ -167,7 +167,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch(Exception e)
             {
-                Themes.LogError("Text.get_CurTextAreaReadOnlyStyle patch failed : " + e.Message);
+                Themes.LogException("Text.get_CurTextAreaReadOnlyStyle patch failed : ", e);
                 return true;
             }
         }
@@ -175,7 +175,7 @@ namespace aRandomKiwi.RimThemes
 
 
 
-    [HarmonyPatch(typeof(Text), "get_SpaceBetweenLines"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Text), "get_SpaceBetweenLines")]
     class SpaceBetweenLines_Patch
     {
         [HarmonyPrefix]
@@ -194,14 +194,14 @@ namespace aRandomKiwi.RimThemes
             }
             catch(Exception e)
             {
-                Themes.LogError("Text.get_SpaceBetweenLines patch failed : " + e.Message);
+                Themes.LogException("Text.get_SpaceBetweenLines patch failed : ", e);
                 return true;
             }
         }
     }
 
 
-    [HarmonyPatch(typeof(Text), "get_LineHeight"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Text), "get_LineHeight")]
     class LineHeight_Patch
     {
         [HarmonyPrefix]
@@ -220,13 +220,13 @@ namespace aRandomKiwi.RimThemes
             }
             catch(Exception e)
             {
-                Themes.LogError("Text.get_LineHeight patch failed : " + e.Message);
+                Themes.LogException("Text.get_LineHeight patch failed : ", e);
                 return true;
             }
         }
     }
 
-    [HarmonyPatch(typeof(Text), "set_Font"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Text), "set_Font")]
     class setFont_Patch
     {
         [HarmonyPrefix]

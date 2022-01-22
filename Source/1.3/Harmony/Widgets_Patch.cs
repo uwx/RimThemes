@@ -12,7 +12,7 @@ using HarmonyLib;
 
 namespace aRandomKiwi.RimThemes
 {
-    [HarmonyPatch(typeof(Widgets), "ButtonTextWorker", new Type[] { typeof(Rect), typeof(string), typeof(bool), typeof(bool), typeof(Color), typeof(bool), typeof(bool) }), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Widgets), "ButtonTextWorker", typeof(Rect), typeof(string), typeof(bool), typeof(bool), typeof(Color), typeof(bool), typeof(bool))]
     class ButtonTextWorker_Patch
     {
         private static Color prevGUIColor;
@@ -35,7 +35,7 @@ namespace aRandomKiwi.RimThemes
                 if (drawBackground)
                 {
                     string buttonNoTex = Themes.getText("buttonnotex");
-                    if (buttonNoTex == null || buttonNoTex != "true")
+                    if (buttonNoTex is not "true")
                     {
                         Texture2D atlas;
                         //if (color != Color.white)
@@ -71,8 +71,7 @@ namespace aRandomKiwi.RimThemes
                         value = Themes.getText("buttonusecolor");
                         if (value == "true")
                         {
-                            Color curColor;
-                            curColor = Themes.getColorMisc("buttonfillcolor");
+                            var curColor = Themes.getColorMisc("buttonfillcolor");
 
                             if (Mouse.IsOver(rect))
                             {
@@ -130,7 +129,7 @@ namespace aRandomKiwi.RimThemes
                 }
                 if (active)
                 {
-                    __result = (!Widgets.ButtonInvisible(rect, false)) ? Widgets.DraggableResult.Idle : Widgets.DraggableResult.Pressed;
+                    __result = !Widgets.ButtonInvisible(rect, false) ? Widgets.DraggableResult.Idle : Widgets.DraggableResult.Pressed;
                     return false;
                 }
                 __result = Widgets.DraggableResult.Idle;
@@ -139,7 +138,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch (Exception e)
             {
-                Themes.LogError("Patch failed : ButtonTextWorker : " + e.Message);
+                Themes.LogException("Patch failed : ButtonTextWorker : ", e);
                 return true;
             }
         }
@@ -153,7 +152,7 @@ namespace aRandomKiwi.RimThemes
 
 
 
-    [HarmonyPatch(typeof(Widgets), "ButtonTextSubtle"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Widgets), "ButtonTextSubtle")]
     class ButtonTextSubtle_Patch
     {
         [HarmonyPrefix]
@@ -219,7 +218,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(Widgets), "DrawWindowBackground"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Widgets), "DrawWindowBackground")]
     class DrawWindowBackground_Patch
     {
         [HarmonyPrefix]
@@ -259,7 +258,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch(Exception e)
             {
-                Themes.LogError("Widgets.DrawWindowBackground patch failed : " + e.Message);
+                Themes.LogException("Widgets.DrawWindowBackground patch failed : ", e);
                 return true;
             }
         }
@@ -267,7 +266,7 @@ namespace aRandomKiwi.RimThemes
 
 
 
-    [HarmonyPatch(typeof(Widgets), "ButtonImage", new Type[] { typeof(Rect), typeof(Texture2D), typeof(Color), typeof(Color), typeof(bool) }), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Widgets), "ButtonImage", typeof(Rect), typeof(Texture2D), typeof(Color), typeof(Color), typeof(bool))]
     class Widgets_ButtonImage_Patch
     {
         [HarmonyPrefix]
@@ -296,7 +295,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch (Exception e)
             {
-                Themes.LogError("Widgets.ButtonImage patch failed : " + e.Message);
+                Themes.LogException("Widgets.ButtonImage patch failed : ", e);
                 return true;
             }
         }
@@ -306,7 +305,7 @@ namespace aRandomKiwi.RimThemes
 
 
 
-    [HarmonyPatch(typeof(Widgets), "Label", new Type[] { typeof(Rect), typeof(GUIContent) }), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Widgets), "Label", typeof(Rect), typeof(GUIContent))]
     class Widgets_Label1_Patch
     {
         [HarmonyPrefix]
@@ -332,13 +331,13 @@ namespace aRandomKiwi.RimThemes
             }
             catch (Exception e)
             {
-                Themes.LogError("Widgets.Label1 patch failed : " + e.Message);
+                Themes.LogException("Widgets.Label1 patch failed : ", e);
                 return true;
             }
         }
     }
 
-    [HarmonyPatch(typeof(Widgets), "Label", new Type[] { typeof(Rect), typeof(string) }), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Widgets), "Label", typeof(Rect), typeof(string))]
     class Widgets_Label2_Patch
     {
         static Color prevColor;
@@ -379,7 +378,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch (Exception e)
             {
-                Themes.LogError("Widgets.Label2 patch failed : " + e.Message);
+                Themes.LogException("Widgets.Label2 patch failed : ", e);
                 return true;
             }
         }
@@ -395,7 +394,7 @@ namespace aRandomKiwi.RimThemes
     }
 
 
-    [HarmonyPatch(typeof(Widgets), "TextField", new Type[] { typeof(Rect), typeof(string) }), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Widgets), "TextField", typeof(Rect), typeof(string))]
     class Widgets_TextField_Patch
     {
         [HarmonyPrefix]
@@ -420,14 +419,14 @@ namespace aRandomKiwi.RimThemes
             }
             catch (Exception e)
             {
-                Themes.LogError("Widgets.TextField patch failed : " + e.Message);
+                Themes.LogException("Widgets.TextField patch failed : ", e);
                 return true;
             }
         }
     }
 
 
-    [HarmonyPatch(typeof(Widgets), "TextArea", new Type[] { typeof(Rect), typeof(string),typeof(bool) }), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Widgets), "TextArea", typeof(Rect), typeof(string), typeof(bool))]
     class Widgets_TextArea_Patch
     {
         [HarmonyPrefix]
@@ -452,7 +451,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch (Exception e)
             {
-                Themes.LogError("Widgets.TextField patch failed : " + e.Message);
+                Themes.LogException("Widgets.TextField patch failed : ", e);
                 return true;
             }
         }

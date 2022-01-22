@@ -101,7 +101,7 @@ namespace aRandomKiwi.RimThemes
             catch (Exception e)
             {
                 Themes.fontsPackage = null;
-                Themes.LogError("Loading fonts package : " + e.Message);
+                Themes.LogException("Loading fonts package : ", e);
             }
 
             //Loading of potential font assetsbundle provided by mods
@@ -118,7 +118,7 @@ namespace aRandomKiwi.RimThemes
                 }
                 catch (Exception e)
                 {
-                    Themes.LogError("Loading external fonts package : " + e.Message);
+                    Themes.LogException("Loading external fonts package : ", e);
                 }
             }
 
@@ -160,7 +160,7 @@ namespace aRandomKiwi.RimThemes
 
         static public bool isValidImgExt(string ext)
         {
-            if (ext == ".png" || ext == ".jpg")
+            if (ext is ".png" or ".jpg")
                 return true;
             else
                 return false;
@@ -170,7 +170,7 @@ namespace aRandomKiwi.RimThemes
         static public bool isNSBlacklistedWindowsType(Window win)
         {
             string type = win.GetType().FullName;
-            if (type == "DubsMintMinimap.MainTabWindow_MiniMap" || type == "DubsMintMinimap.MainTabWindow_MiniMapSetting")
+            if (type is "DubsMintMinimap.MainTabWindow_MiniMap" or "DubsMintMinimap.MainTabWindow_MiniMapSetting")
                 return true;
             else
                 return false;
@@ -181,13 +181,7 @@ namespace aRandomKiwi.RimThemes
             return Regex.Replace(str, $@"^(.*){toReplace}(.*?)$", $"$1{replacement}$2");
         }
 
-        public static string RWBaseFolderPath
-        {
-            get
-            {
-                return new DirectoryInfo(UnityData.dataPath).Parent.FullName;
-            }
-        }
+        public static string RWBaseFolderPath => new DirectoryInfo(UnityData.dataPath).Parent.FullName;
 
         public static void applyWindowFillColorOpacityOverride(string newTheme)
         {
@@ -211,12 +205,12 @@ namespace aRandomKiwi.RimThemes
             }
             else
             {
-                if (Themes.DBColor.ContainsKey("-1§Vanilla") && Themes.DBColor["-1§Vanilla"].ContainsKey("Widgets") && Themes.DBColor["-1§Vanilla"]["Widgets"].ContainsKey("WindowBGFillColor"))
+                if (Themes.DBColor.ContainsKey(Themes.VanillaThemeID) && Themes.DBColor[Themes.VanillaThemeID].ContainsKey("Widgets") && Themes.DBColor[Themes.VanillaThemeID]["Widgets"].ContainsKey("WindowBGFillColor"))
                 {
                     //Change alpha component of the vanilla theme
-                    cColor = Themes.DBColor["-1§Vanilla"]["Widgets"]["WindowBGFillColor"];
+                    cColor = Themes.DBColor[Themes.VanillaThemeID]["Widgets"]["WindowBGFillColor"];
                     cColor.a = Settings.overrideThemeWindowFillColorAlphaLevel;
-                    Themes.DBColor["-1§Vanilla"]["Widgets"]["WindowBGFillColor"] = cColor;
+                    Themes.DBColor[Themes.VanillaThemeID]["Widgets"]["WindowBGFillColor"] = cColor;
                 }
                 else
                     return;

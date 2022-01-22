@@ -12,7 +12,7 @@ using HarmonyLib;
 
 namespace aRandomKiwi.RimThemes
 {
-    [HarmonyPatch(typeof(CustomCursor), "Activate"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(CustomCursor), "Activate")]
     class Activate_Patch
     {
         private static Vector2 CursorHotspot = new Vector2(3f, 3f);

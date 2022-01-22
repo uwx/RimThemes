@@ -24,7 +24,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(UI_BackgroundMain), "BackgroundOnGUI"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(UI_BackgroundMain), "BackgroundOnGUI")]
     class UI_BackgroundMain_Patch
     {
         private static readonly Vector2 BGPlanetSize = new Vector2(2048f, 1280f);
@@ -41,29 +41,29 @@ namespace aRandomKiwi.RimThemes
                     return true;
 
                 //Obtaining the applicable theme background
-                string curTheme = Themes.getCustomBackgroundApplyableTheme();
+                var curTheme = Themes.getCustomBackgroundApplyableTheme();
 
 
                 if (Settings.curTheme == Themes.VanillaThemeID && Settings.disableRandomBg)
                     return true;
 
                 //If the animated background is available and loaded, we start reading it!
-                bool animatedBgOK = Current.ProgramState == ProgramState.Entry && Themes.DBAnimatedBackground.ContainsKey(curTheme) && !Settings.disableVideoBg;
-                bool animatedBgOKException = false;
+                var animatedBgOK = Current.ProgramState == ProgramState.Entry && Themes.DBAnimatedBackground.ContainsKey(curTheme) && !Settings.disableVideoBg;
+                var animatedBgOKException = false;
                 if (animatedBgOK)
                 {
                     Rect pos;
-                    if ((double)Screen.width <= (double)Screen.height * ((double)MainBackgroundSize.x / (double)MainBackgroundSize.y))
+                    if (Screen.width <= Screen.height * (MainBackgroundSize.x / (double)MainBackgroundSize.y))
                     {
-                        int height = Screen.height;
-                        float width = (float)Screen.height * (MainBackgroundSize.x / MainBackgroundSize.y);
-                        pos = new Rect((float)(Screen.width / 2) - width / 2f, 0.0f, width, (float)height);
+                        var height = Screen.height;
+                        var width = Screen.height * (MainBackgroundSize.x / MainBackgroundSize.y);
+                        pos = new Rect(Screen.width / 2 - width / 2f, 0.0f, width, height);
                     }
                     else
                     {
-                        int width = Screen.width;
-                        float height = (float)Screen.width * (MainBackgroundSize.y / MainBackgroundSize.x);
-                        pos = new Rect(0.0f, (float)(Screen.height / 2) - height / 2f, (float)width, height);
+                        var width = Screen.width;
+                        var height = Screen.width * (MainBackgroundSize.y / MainBackgroundSize.x);
+                        pos = new Rect(0.0f, Screen.height / 2 - height / 2f, width, height);
                     }
 
                     if (!Utils.CurrentMainAnimatedBgPlaying)
@@ -116,24 +116,20 @@ namespace aRandomKiwi.RimThemes
 
                 if(!animatedBgOK || animatedBgOKException)
                 {
-                    bool flag = true;
+                    var flag = !(UI.screenWidth > UI.screenHeight * (BGPlanetSize.x / BGPlanetSize.y));
 
-                    if ((float)UI.screenWidth > (float)UI.screenHeight * (BGPlanetSize.x / BGPlanetSize.y))
-                    {
-                        flag = false;
-                    }
                     Rect position;
                     if (flag)
                     {
-                        float height = (float)UI.screenHeight;
-                        float num = (float)UI.screenHeight * (BGPlanetSize.x / BGPlanetSize.y);
-                        position = new Rect((float)(UI.screenWidth / 2) - num / 2f, 0f, num, height);
+                        var height = (float)UI.screenHeight;
+                        var num = (float)UI.screenHeight * (BGPlanetSize.x / BGPlanetSize.y);
+                        position = new Rect(UI.screenWidth / 2 - num / 2f, 0f, num, height);
                     }
                     else
                     {
-                        float width = (float)UI.screenWidth;
-                        float num2 = (float)UI.screenWidth * (BGPlanetSize.y / BGPlanetSize.x);
-                        position = new Rect(0f, (float)(UI.screenHeight / 2) - num2 / 2f, width, num2);
+                        var width = (float)UI.screenWidth;
+                        var num2 = (float)UI.screenWidth * (BGPlanetSize.y / BGPlanetSize.x);
+                        position = new Rect(0f, UI.screenHeight / 2 - num2 / 2f, width, num2);
                     }
 
                     Texture bg = Themes.getThemeTex("UI_BackgroundMain", "BGPlanet",curTheme);

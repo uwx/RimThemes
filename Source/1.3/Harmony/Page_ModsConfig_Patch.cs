@@ -13,7 +13,7 @@ using HarmonyLib;
 
 namespace aRandomKiwi.RimThemes
 {
-    [HarmonyPatch(typeof(Page_ModsConfig), "DoWindowContents"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Page_ModsConfig), "DoWindowContents")]
     class DoWindowContents_Patch
     {
         [HarmonyPrefix]
@@ -30,7 +30,7 @@ namespace aRandomKiwi.RimThemes
 
             try
             {
-                if (curMod != null && curMod.enabled)
+                if (curMod is { enabled: true })
                 {
                     string path;
                     //Check if the mod has themes
@@ -42,7 +42,7 @@ namespace aRandomKiwi.RimThemes
                     if (Directory.Exists(path))
                     {
                         //Default theme search
-                        string[] folders = System.IO.Directory.GetDirectories(path);
+                        string[] folders = Directory.GetDirectories(path);
                         foreach (var dir in folders)
                         {
                             var theme = dir.Remove(0, dir.LastIndexOf(Path.DirectorySeparatorChar) + 1);
@@ -65,7 +65,7 @@ namespace aRandomKiwi.RimThemes
             catch(Exception e)
             {
                 Utils.tempDisableNoTransparentText = false;
-                Themes.LogError("Patch failed : Page_ModsConfig.DoWindowContents : " + e.Message);
+                Themes.LogException("Patch failed : Page_ModsConfig.DoWindowContents : ", e);
             }
         }
     }

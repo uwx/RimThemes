@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using Verse;
 
@@ -7,13 +8,7 @@ namespace aRandomKiwi.RimThemes
 {
     internal class ActiveTheme
     {
-        //Storage of fix tables in case of field / class name change to avoid breaking themes
-        public readonly string DBFix;
-
-        //Storage of effects data
-        public readonly float? DBEffect;
-
-        public readonly Dictionary<GameFont, GUIStyle> DBGUIStyle;
+        //public readonly Dictionary<GameFont, GUIStyle> DBGUIStyle;
         public readonly Dictionary<GameFont, GUIStyle> DBGUIStyleTextField;
         public readonly Dictionary<GameFont, GUIStyle> DBGUIStyleTextArea;
         public readonly Dictionary<GameFont, GUIStyle> DBGUIStyleTextAreaReadOnly;
@@ -25,16 +20,16 @@ namespace aRandomKiwi.RimThemes
         public readonly Texture2D DBTexThemeIcon;
         public readonly Texture2D DBTexParticle;
         public readonly Texture2D DBTexTapestry;
-        public readonly Texture2D[] DBLoader;
-        public readonly bool DBNoLoader;
-        public readonly bool DBLoaderNotFound;
-        public readonly Texture2D DBBGLoader;
-        public readonly Texture2D DBTexLoaderBar;
-        public readonly Texture2D DBTexLoaderText;
+        //public readonly Texture2D[] DBLoader;
+        //public readonly bool DBNoLoader;
+        //public readonly bool DBLoaderNotFound;
+        //public readonly Texture2D DBBGLoader;
+        //public readonly Texture2D DBTexLoaderBar;
+        //public readonly Texture2D DBTexLoaderText;
         public readonly Dictionary<(string className, string fieldName), Texture2D> DBTex;
 
         //Animated background
-        public readonly string DBAnimatedBackground;
+        //public readonly string DBAnimatedBackground;
 
         //Text color by theme
         public readonly Color? DBTextColorWhite;
@@ -62,15 +57,15 @@ namespace aRandomKiwi.RimThemes
 
         public readonly WindowAnim? DBWindowAnim;
         public readonly Dictionary<(string key, string text), Color> DBColor;
-        public readonly Dictionary<string, AudioGrain_ClipTheme> DBSound;
-        public readonly Dictionary<string, AudioClip> DBSong;
+        //public readonly Dictionary<string, AudioGrain_ClipTheme> DBSound;
+        //public readonly Dictionary<string, AudioClip> DBSong;
         public readonly Dictionary<string, string> DBText;
         public readonly Dictionary<string, int> DBVal;
-        public readonly Dictionary<string, string> DBModInfo;
+        //public readonly Dictionary<string, string> DBModInfo;
         public readonly Dictionary<Color, Color> DBDynColor;
 
         //List of music files to load (EntrySong)
-        public readonly Dictionary<string, string> DBSongsToLoad;
+        //public readonly Dictionary<string, string> DBSongsToLoad;
 
         public readonly Dictionary<Color, Color> CacheColor = new();
         public readonly Dictionary<Color, Color> CacheTextColor = new();
@@ -81,17 +76,13 @@ namespace aRandomKiwi.RimThemes
         public ActiveTheme()
         {
             // EVERYTHING IS NULL!
+            DBTextColorCached = Array.Empty<(Color, Color)>();
+            DBTexColorCached = Array.Empty<(Color, Color)>();
         }
 
         public ActiveTheme(string theme)
         {
-            //Storage of fix tables in case of field / class name change to avoid breaking themes
-            DBFix = Get(Themes.DBFix, theme);
-
-            //Storage of effects data
-            DBEffect = Get(Themes.DBEffect, theme);
-
-            DBGUIStyle = Get(Themes.DBGUIStyle, theme);
+            //DBGUIStyle = Get(Themes.DBGUIStyle, theme);
             DBGUIStyleTextField = Get(Themes.DBGUIStyleTextField, theme);
             DBGUIStyleTextArea = Get(Themes.DBGUIStyleTextArea, theme);
             DBGUIStyleTextAreaReadOnly = Get(Themes.DBGUIStyleTextAreaReadOnly, theme);
@@ -103,12 +94,12 @@ namespace aRandomKiwi.RimThemes
             DBTexThemeIcon = Get(Themes.DBTexThemeIcon, theme);
             DBTexParticle = Get(Themes.DBTexParticle, theme);
             DBTexTapestry = Get(Themes.DBTexTapestry, theme);
-            DBLoader = Get(Themes.DBLoader, theme);
-            DBNoLoader = Get(Themes.DBNoLoader, theme);
-            DBLoaderNotFound = Get(Themes.DBLoaderNotFound, theme);
-            DBBGLoader = Get(Themes.DBBGLoader, theme);
-            DBTexLoaderBar = Get(Themes.DBTexLoaderBar, theme);
-            DBTexLoaderText = Get(Themes.DBTexLoaderText, theme);
+            //DBLoader = Get(Themes.DBLoader, theme);
+            //DBNoLoader = Get(Themes.DBNoLoader, theme);
+            //DBLoaderNotFound = Get(Themes.DBLoaderNotFound, theme);
+            //DBBGLoader = Get(Themes.DBBGLoader, theme);
+            //DBTexLoaderBar = Get(Themes.DBTexLoaderBar, theme);
+            //DBTexLoaderText = Get(Themes.DBTexLoaderText, theme);
             DBTex = GetAsTupleDict(Themes.DBTex, theme);
             
             // awful hack to make lookups on DBTex always one operation by falling back on vanilla
@@ -123,43 +114,42 @@ namespace aRandomKiwi.RimThemes
             }
 
             //Animated background
-            DBAnimatedBackground = Get(Themes.DBAnimatedBackground, theme);
+            //DBAnimatedBackground = Get(Themes.DBAnimatedBackground, theme);
 
             //Text color by theme
-            DBTextColorWhite = Get(Themes.DBTextColorWhite, theme);
-            DBTextColorYellow = Get(Themes.DBTextColorYellow, theme);
-            DBTextColorGreen = Get(Themes.DBTextColorGreen, theme);
-            DBTextColorRed = Get(Themes.DBTextColorRed, theme);
-            DBTextColorCyan = Get(Themes.DBTextColorCyan, theme);
-            DBTextColorBlue = Get(Themes.DBTextColorBlue, theme);
-            DBTextColorGray = Get(Themes.DBTextColorGray, theme);
-            DBTextColorMagenta = Get(Themes.DBTextColorMagenta, theme);
-
+            DBTextColorWhite = GetNullable(Themes.DBTextColorWhite, theme);
+            DBTextColorYellow = GetNullable(Themes.DBTextColorYellow, theme);
+            DBTextColorGreen = GetNullable(Themes.DBTextColorGreen, theme);
+            DBTextColorRed = GetNullable(Themes.DBTextColorRed, theme);
+            DBTextColorCyan = GetNullable(Themes.DBTextColorCyan, theme);
+            DBTextColorBlue = GetNullable(Themes.DBTextColorBlue, theme);
+            DBTextColorGray = GetNullable(Themes.DBTextColorGray, theme);
+            DBTextColorMagenta = GetNullable(Themes.DBTextColorMagenta, theme);
 
             //Texture color by theme
-            DBTexColorWhite = Get(Themes.DBTexColorWhite, theme);
-            DBTexColorYellow = Get(Themes.DBTexColorYellow, theme);
-            DBTexColorGreen = Get(Themes.DBTexColorGreen, theme);
-            DBTexColorRed = Get(Themes.DBTexColorRed, theme);
-            DBTexColorCyan = Get(Themes.DBTexColorCyan, theme);
-            DBTexColorBlue = Get(Themes.DBTexColorBlue, theme);
-            DBTexColorGray = Get(Themes.DBTexColorGray, theme);
-            DBTexColorMagenta = Get(Themes.DBTexColorMagenta, theme);
+            DBTexColorWhite = GetNullable(Themes.DBTexColorWhite, theme);
+            DBTexColorYellow = GetNullable(Themes.DBTexColorYellow, theme);
+            DBTexColorGreen = GetNullable(Themes.DBTexColorGreen, theme);
+            DBTexColorRed = GetNullable(Themes.DBTexColorRed, theme);
+            DBTexColorCyan = GetNullable(Themes.DBTexColorCyan, theme);
+            DBTexColorBlue = GetNullable(Themes.DBTexColorBlue, theme);
+            DBTexColorGray = GetNullable(Themes.DBTexColorGray, theme);
+            DBTexColorMagenta = GetNullable(Themes.DBTexColorMagenta, theme);
 
             //Neutral color of factions
-            DBTextColorFactionsNeutral = Get(Themes.DBTextColorFactionsNeutral, theme);
+            DBTextColorFactionsNeutral = GetNullable(Themes.DBTextColorFactionsNeutral, theme);
 
-            DBWindowAnim = Get(Themes.DBWindowAnim, theme);
+            DBWindowAnim = GetNullable(Themes.DBWindowAnim, theme);
             DBColor = GetAsTupleDict(Themes.DBColor, theme);
-            DBSound = Get(Themes.DBSound, theme);
-            DBSong = Get(Themes.DBSong, theme);
+            //DBSound = Get(Themes.DBSound, theme);
+            //DBSong = Get(Themes.DBSong, theme);
             DBText = Get(Themes.DBText, theme);
             DBVal = Get(Themes.DBVal, theme);
-            DBModInfo = Get(Themes.DBModInfo, theme);
+            //DBModInfo = Get(Themes.DBModInfo, theme);
             DBDynColor = Get(Themes.DBDynColor, theme);
 
             //List of music files to load (EntrySong)
-            DBSongsToLoad = Get(Themes.DBSongsToLoad, theme);
+            //DBSongsToLoad = Get(Themes.DBSongsToLoad, theme);
             
             // ReSharper disable PossibleInvalidOperationException wtf
             var colorsCachedTemp = new (Color from, Color to)[8];
@@ -209,9 +199,18 @@ namespace aRandomKiwi.RimThemes
             return outDict;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TV Get<TV>(IReadOnlyDictionary<string, TV> dict, string theme)
+            where TV : class
         {
-            return dict != null && dict.TryGetValue(theme, out var v) ? v : default;
+            return dict.TryGetValue(theme, out var v) ? v : default;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static TV? GetNullable<TV>(IReadOnlyDictionary<string, TV> dict, string theme)
+            where TV : struct
+        {
+            return dict.TryGetValue(theme, out var v) ? v : default(TV?);
         }
     }
 

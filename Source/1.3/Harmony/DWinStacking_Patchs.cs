@@ -12,7 +12,7 @@ using HarmonyLib;
 
 namespace aRandomKiwi.RimThemes
 {
-    [HarmonyPatch(typeof(InspectPaneUtility), "ToggleTab"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(InspectPaneUtility), "ToggleTab")]
     class InspectPaneUtility_ToggleTab_Patch
     {
         [HarmonyPrefix]
@@ -33,7 +33,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch(Exception e)
             {
-                Themes.LogError("Patch InspectPaneUtility.ToggleTab failed : " + e.Message);
+                Themes.LogException("Patch InspectPaneUtility.ToggleTab failed : ", e);
                 return true;
             }
         }
@@ -41,7 +41,7 @@ namespace aRandomKiwi.RimThemes
 
 
 
-    [HarmonyPatch(typeof(InspectTabBase), "DoTabGUI"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(InspectTabBase), "DoTabGUI")]
     class InspectTabBase_DoTabGUI_Patch
     {
         [HarmonyPrefix]
@@ -70,13 +70,13 @@ namespace aRandomKiwi.RimThemes
             }
             catch(Exception e)
             {
-                Themes.LogError("Patch InspectTabBase.DoTabGUI failed : " + e.Message);
+                Themes.LogException("Patch InspectTabBase.DoTabGUI failed : ", e);
                 return true;
             }
         }
     }
 
-    [HarmonyPatch(typeof(WindowStack), "TryRemove",new Type[] { typeof(Window), typeof(bool) }), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(WindowStack), "TryRemove", typeof(Window), typeof(bool))]
     class WindowStack_TryRemove_Patch
     {
         [HarmonyPrefix]
@@ -87,8 +87,7 @@ namespace aRandomKiwi.RimThemes
                 //Log.Message(">>>Dec " + window.GetType()+" "+ window.ID);
                 if (!Themes.dialogStacking() && !Utils.isNSBlacklistedWindowsType(window) && ((window.layer == WindowLayer.Dialog)
                     || (window.layer == WindowLayer.GameUI && window.ID == -235086)
-                    || (window is MainTabWindow && !(window is MainTabWindow_Inspect))
-                    || (window is EditWindow)))
+                    || window is MainTabWindow and not MainTabWindow_Inspect or EditWindow))
                 {
                     if (Utils.lastShowedWin.Count != 0)
                     {
@@ -110,7 +109,7 @@ namespace aRandomKiwi.RimThemes
 
 
 
-    [HarmonyPatch(typeof(WindowStack), "Add"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(WindowStack), "Add")]
     class WindowsStack_Add_Patch
     {
         [HarmonyPrefix]
@@ -119,8 +118,7 @@ namespace aRandomKiwi.RimThemes
             try
             {
                 if (!Themes.dialogStacking() && !Utils.isNSBlacklistedWindowsType(window) && ((window.layer == WindowLayer.Dialog)
-                    || (window is MainTabWindow && !(window is MainTabWindow_Inspect))
-                    || (window is EditWindow)))
+                    || window is MainTabWindow and not MainTabWindow_Inspect or EditWindow))
                 {
                     Utils.lastShowedWin.Add(new WDESC(1, ___uniqueWindowID));
                     //Log.Message("Add "+___uniqueWindowID+" "+window.GetType());
@@ -130,7 +128,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch(Exception e)
             {
-                Themes.LogError("Patch WindowStack.Add failed : " + e.Message);
+                Themes.LogException("Patch WindowStack.Add failed : ", e);
                 return true;
             }
         }

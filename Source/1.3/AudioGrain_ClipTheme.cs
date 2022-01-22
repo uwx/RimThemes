@@ -41,7 +41,7 @@ namespace aRandomKiwi.RimThemes
             }
             else
             {
-                Log.Error("Grain couldn't resolve: Clip not found at " + this.clipPath, false);
+                Log.Error("Grain couldn't resolve: Clip not found at " + this.clipPath);
             }
         }
 
@@ -50,7 +50,7 @@ namespace aRandomKiwi.RimThemes
             try
             {
                 bool doStream = ShouldStreamAudioClipFromPath(themeClipPath);
-                return (AudioClip)((object)Manager.Load(themeClipPath, doStream, true, true));
+                return Manager.Load(themeClipPath, doStream, true, true);
             }
             catch (Exception e)
             {
@@ -59,39 +59,34 @@ namespace aRandomKiwi.RimThemes
             }
         }
 
+#pragma warning disable 618
         static public AudioClip linuxLoadAudio(string themeClipPath)
         {
-            AudioClip clip;
             string url = GenFilePaths.SafeURIForUnityWWWFromPath(themeClipPath);
-            using (WWW www = new WWW(url))
+            using var www = new WWW(url);
+            www.threadPriority = UnityEngine.ThreadPriority.High;
+            while (!www.isDone)
             {
-                www.threadPriority = UnityEngine.ThreadPriority.High;
-                while (!www.isDone)
-                {
-                    Thread.Sleep(1);
-                }
-                if (www.error != null)
-                {
-                    throw new InvalidOperationException(www.error);
-                }
-                clip = www.GetAudioClip();
-                UnityEngine.Object @object = clip as UnityEngine.Object;
-                if (@object != null)
-                {
-                    @object.name = Path.GetFileNameWithoutExtension(new FileInfo(themeClipPath).Name);
-                }
+                Thread.Sleep(1);
             }
+            if (www.error != null)
+            {
+                throw new InvalidOperationException(www.error);
+            }
+            var clip = www.GetAudioClip();
+            if (clip != null)
+            {
+                clip.name = Path.GetFileNameWithoutExtension(new FileInfo(themeClipPath).Name);
+            }
+
             return clip;
         }
+#pragma warning restore 618
 
         private static bool ShouldStreamAudioClipFromPath(string absPath)
         {
-            if (!File.Exists(absPath))
-            {
-                return false;
-            }
-            FileInfo fileInfo = new FileInfo(absPath);
-            return fileInfo.Length > 307200L;
+            var fileInfo = new FileInfo(absPath);
+            return fileInfo.Exists && fileInfo.Length > 307200L;
         }
     }
 }

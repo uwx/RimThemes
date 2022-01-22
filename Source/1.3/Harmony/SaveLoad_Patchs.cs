@@ -13,7 +13,7 @@ using System.Collections;
 
 namespace aRandomKiwi.RimThemes
 {
-    [HarmonyPatch(typeof(World), nameof(World.ExposeData)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(World), nameof(World.ExposeData))]
     class World_ExposeData_Patch
     {
         [HarmonyPrefix]
@@ -23,7 +23,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(WorldGenerator), nameof(WorldGenerator.GenerateFromScribe)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(WorldGenerator), nameof(WorldGenerator.GenerateFromScribe))]
     class WorldGenerator_GenerateFromScribe_Patch
     {
         [HarmonyPrefix]
@@ -37,7 +37,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(WorldGenerator), nameof(WorldGenerator.GenerateWithoutWorldData)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(WorldGenerator), nameof(WorldGenerator.GenerateWithoutWorldData))]
     class WorldGenerator_GenerateWithoutWorldData_Patch
     {
         [HarmonyPrefix]
@@ -53,7 +53,7 @@ namespace aRandomKiwi.RimThemes
 
 
 
-    [HarmonyPatch(typeof(WorldGenStep_Terrain), nameof(WorldGenStep_Terrain.GenerateFromScribe)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(WorldGenStep_Terrain), nameof(WorldGenStep_Terrain.GenerateFromScribe))]
     public class WorldGenStep_Terrain_GenerateFromScribe_Patch
     {
         [HarmonyPostfix]
@@ -64,7 +64,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(WorldGenStep_Terrain), nameof(WorldGenStep_Terrain.GenerateFromScribe)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(WorldGenStep_Terrain), nameof(WorldGenStep_Terrain.GenerateFromScribe))]
     public class WorldGenStep_Terrain_GenerateWithoutWorldData_Patch
     {
         [HarmonyPostfix]
@@ -75,7 +75,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(WorldGenStep_Components), nameof(WorldGenStep_Components.GenerateFromScribe)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(WorldGenStep_Components), nameof(WorldGenStep_Components.GenerateFromScribe))]
     public class WorldGenStep_Components_GenerateFromScribe_Patch
     {
         [HarmonyPostfix]
@@ -86,7 +86,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(WorldGenStep_Components), nameof(WorldGenStep_Components.GenerateWithoutWorldData)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(WorldGenStep_Components), nameof(WorldGenStep_Components.GenerateWithoutWorldData))]
     public class WorldGenStep_Components_GenerateWithoutWorldData_Patch
     {
         [HarmonyPostfix]
@@ -98,7 +98,7 @@ namespace aRandomKiwi.RimThemes
     }
 
 
-    [HarmonyPatch(typeof(World), nameof(World.FinalizeInit)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(World), nameof(World.FinalizeInit))]
     public class World_FinalizeInit_Patch
     {
         public static void Prefix()
@@ -113,7 +113,7 @@ namespace aRandomKiwi.RimThemes
 
 
 
-    [HarmonyPatch(typeof(Map), nameof(Map.ExposeData)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Map), nameof(Map.ExposeData))]
     public class Map_ExposeData_Patch
     {
         public static void Prefix(Map __instance)
@@ -126,7 +126,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(Map), "ExposeComponents"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Map), "ExposeComponents")]
     public class Map_ExposeComponents_Patch
     {
         public static void Prefix()
@@ -138,7 +138,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(MapFileCompressor), nameof(MapFileCompressor.ExposeData)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(MapFileCompressor), nameof(MapFileCompressor.ExposeData))]
     public class MapLoadCompressedPatch
     {
         public static void Prefix()
@@ -150,7 +150,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(CameraDriver), nameof(CameraDriver.Expose)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(CameraDriver), nameof(CameraDriver.Expose))]
     public class CameraDriver_Expose_Patch
     {
         public static void Prefix()
@@ -163,7 +163,7 @@ namespace aRandomKiwi.RimThemes
     }
 
 
-    [HarmonyPatch(typeof(ScribeLoader), nameof(ScribeLoader.FinalizeLoading)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(ScribeLoader), nameof(ScribeLoader.FinalizeLoading))]
     public class ScribeLoader_FinalizeLoading_Patch
     {
         public static void Prefix()
@@ -177,7 +177,7 @@ namespace aRandomKiwi.RimThemes
     }
 
 
-    [HarmonyPatch(typeof(Map), nameof(Map.FinalizeLoading)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Map), nameof(Map.FinalizeLoading))]
     public class MapFinalizeLoadPatch
     {
         public static void Prefix(Map __instance)
@@ -186,7 +186,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(Game), nameof(Game.FinalizeInit)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Game), nameof(Game.FinalizeInit))]
     public class GameFinalizeInitPatch
     {
         public static void Prefix()
@@ -202,7 +202,7 @@ namespace aRandomKiwi.RimThemes
 
 
     // World generation screen 
-    [HarmonyPatch(typeof(LongEventHandler), nameof(LongEventHandler.QueueLongEvent), new Type[] { typeof(IEnumerable), typeof(string), typeof(Action<Exception>), typeof(bool) }), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(LongEventHandler), nameof(LongEventHandler.QueueLongEvent), typeof(IEnumerable), typeof(string), typeof(Action<Exception>), typeof(bool))]
     public class LongEventHandler_QueueLongEvent_Patch
     {
         public static void Prefix(IEnumerable action, string textKey, Action<Exception> exceptionHandler = null, bool showExtraUIInfo = true)
@@ -212,7 +212,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(LongEventHandler), nameof(LongEventHandler.QueueLongEvent), new Type[] { typeof(Action), typeof(string), typeof(string), typeof(bool), typeof(Action<Exception>), typeof(bool) }), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(LongEventHandler), nameof(LongEventHandler.QueueLongEvent), typeof(Action), typeof(string), typeof(string), typeof(bool), typeof(Action<Exception>), typeof(bool))]
     public class LongEventHandler_QueueLongEvent2_Patch
     {
         public static void Prefix(Action preLoadLevelAction, string levelToLoad, string textKey, bool doAsynchronously, Action<Exception> exceptionHandler, bool showExtraUIInfo = true)
@@ -230,7 +230,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(LongEventHandler), nameof(LongEventHandler.QueueLongEvent), new Type[] { typeof(Action), typeof(string), typeof(bool), typeof(Action<Exception>), typeof(bool) }), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(LongEventHandler), nameof(LongEventHandler.QueueLongEvent), typeof(Action), typeof(string), typeof(bool), typeof(Action<Exception>), typeof(bool))]
     public class LongEventHandler_QueueLongEvent3_Patch
     {
         public static void Prefix(Action action, string textKey, bool doAsynchronously, Action<Exception> exceptionHandler, bool showExtraUIInfo = true)
@@ -240,7 +240,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(WorldRenderer), "RegenerateDirtyLayersNow_Async"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(WorldRenderer), "RegenerateDirtyLayersNow_Async")]
     public class WorldRenderer_RegenerateDirtyLayersNow_Async_Patch
     {
         public static void Prefix()
@@ -250,7 +250,7 @@ namespace aRandomKiwi.RimThemes
     }
 
 
-    [HarmonyPatch(typeof(GameDataSaveLoader), nameof(GameDataSaveLoader.SaveGame)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(GameDataSaveLoader), nameof(GameDataSaveLoader.SaveGame))]
     class ScribeSaver_FinalizeSaving_Patch
     {
         [HarmonyPostfix]

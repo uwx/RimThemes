@@ -6,10 +6,10 @@ using System.Reflection;
 
 namespace aRandomKiwi.RimThemes
 {
-    struct FOI
+    public readonly struct FOI
     {
-        public string field;
-        public BindingFlags bf;
+        public readonly string field;
+        public readonly BindingFlags bf;
 
         public FOI(string field, BindingFlags bf = (BindingFlags.Public | BindingFlags.Static))
         {

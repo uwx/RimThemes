@@ -12,7 +12,7 @@ using HarmonyLib;
 
 namespace aRandomKiwi.RimThemes
 {
-    [HarmonyPatch(typeof(GUI), "DrawTexture", new Type[] { typeof(Rect), typeof(Texture) }), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(GUI), "DrawTexture", typeof(Rect), typeof(Texture))]
     class GUI_DrawTexture_Patch
     {
         static Color prevColor;
@@ -35,7 +35,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch (Exception e)
             {
-                Themes.LogError("GUI.DrawTexture patch failed : " + e.Message);
+                Themes.LogException("GUI.DrawTexture patch failed : ", e);
                 return true;
             }
         }

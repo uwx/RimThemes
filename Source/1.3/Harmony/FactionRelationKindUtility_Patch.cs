@@ -12,7 +12,7 @@ using HarmonyLib;
 
 namespace aRandomKiwi.RimThemes
 {
-    [HarmonyPatch(typeof(FactionRelationKindUtility), "GetColor"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(FactionRelationKindUtility), "GetColor")]
     class FactionRelationKindUtility_GetColor_Patch
     {
         [HarmonyPrefix]
@@ -21,15 +21,15 @@ namespace aRandomKiwi.RimThemes
             try
             {
                 string theme = Settings.curTheme;
-                if (kind != FactionRelationKind.Neutral || !Themes.DBTextColorFactionsNeutral.ContainsKey(theme))
+                if (kind != FactionRelationKind.Neutral || Themes.ActiveTheme.DBTextColorFactionsNeutral == null)
                     return true;
 
-                __result = Themes.DBTextColorFactionsNeutral[theme];
+                __result = Themes.ActiveTheme.DBTextColorFactionsNeutral.Value;
                 return false;
             }
             catch(Exception e)
             {
-                Themes.LogError("Patch FactionRelationKindUtility.GetColor failed : " + e.Message);
+                Themes.LogException("Patch FactionRelationKindUtility.GetColor failed : ", e);
                 return true;
             }
         }

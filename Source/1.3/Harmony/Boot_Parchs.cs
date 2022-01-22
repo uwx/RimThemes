@@ -17,7 +17,7 @@ using System.Runtime.CompilerServices;
 namespace aRandomKiwi.RimThemes
 {
 
-    [HarmonyPatch(typeof(LoadedModManager), nameof(LoadedModManager.LoadModXML)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(LoadedModManager), nameof(LoadedModManager.LoadModXML))]
     class LoadedModManager_LoadModXmlPatch_Patch
     {
         [HarmonyPrefix]
@@ -31,7 +31,7 @@ namespace aRandomKiwi.RimThemes
     }
 
 
-    [HarmonyPatch(typeof(ModContentPack), nameof(ModContentPack.LoadDefs)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(ModContentPack), nameof(ModContentPack.LoadDefs))]
     class ModContentPack_LoadDefsPatch_Patch
     {
         [HarmonyPrefix]
@@ -46,7 +46,7 @@ namespace aRandomKiwi.RimThemes
     }
 
 
-    [HarmonyPatch(typeof(ModContentPack), "LoadPatches"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(ModContentPack), "LoadPatches")]
     class ModContentPack_LoadPatches_Patch
     {
         [HarmonyPrefix]
@@ -60,7 +60,7 @@ namespace aRandomKiwi.RimThemes
     }
 
 
-    [HarmonyPatch(typeof(LoadedModManager), nameof(LoadedModManager.CombineIntoUnifiedXML)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(LoadedModManager), nameof(LoadedModManager.CombineIntoUnifiedXML))]
     class LoadedModManager_CombineIntoUnifiedXML_Patch
     {
         [HarmonyPrefix]
@@ -74,7 +74,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(LoadedModManager), nameof(LoadedModManager.ApplyPatches)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(LoadedModManager), nameof(LoadedModManager.ApplyPatches))]
     class LoadedModManager_ApplyPatches_Patch
     {
         [HarmonyPrefix]
@@ -90,7 +90,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(LoadedModManager), nameof(LoadedModManager.ParseAndProcessXML)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(LoadedModManager), nameof(LoadedModManager.ParseAndProcessXML))]
     class LoadedModManager_ParseAndProcessXML_Patch
     {
         [HarmonyPrefix]
@@ -115,7 +115,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(GenGeneric), "MethodOnGenericType", new Type[] { typeof(Type), typeof(Type), typeof(string) }), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(GenGeneric), "MethodOnGenericType", typeof(Type), typeof(Type), typeof(string))]
     class GenGeneric_MethodOnGenericType_Patch
     {
         [HarmonyPrefix]
@@ -151,7 +151,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(DirectXmlLoader), nameof(DirectXmlLoader.DefFromNode)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(DirectXmlLoader), nameof(DirectXmlLoader.DefFromNode))]
     class DirectXmlLoader_DefFromNode_Patch
     {
         [HarmonyPrefix]
@@ -162,7 +162,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(XmlInheritance), nameof(XmlInheritance.TryRegister)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(XmlInheritance), nameof(XmlInheritance.TryRegister))]
     class XmlInheritance_TryRegister_Patch
     {
         [HarmonyPrefix]
@@ -175,7 +175,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(StaticConstructorOnStartupUtility), nameof(StaticConstructorOnStartupUtility.CallAll)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(StaticConstructorOnStartupUtility), nameof(StaticConstructorOnStartupUtility.CallAll))]
     class StaticConstructorOnStartupUtility_CallAll_Patch
     {
         [HarmonyPrefix]
@@ -193,7 +193,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(RuntimeHelpers), nameof(RuntimeHelpers.RunClassConstructor), new Type[] { typeof(RuntimeTypeHandle) }), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(RuntimeHelpers), nameof(RuntimeHelpers.RunClassConstructor), typeof(RuntimeTypeHandle))]
     class RuntimeHelpers_RunClassConstructor_Patch
     {
         [HarmonyPrefix]
@@ -207,7 +207,7 @@ namespace aRandomKiwi.RimThemes
                 if (LoaderGM.curStep != LoaderSteps.FinishUp)
                     return true;
                 var t = Type.GetTypeFromHandle(type);
-                if (t.TryGetAttribute(out StaticConstructorOnStartup _))
+                if (t.HasAttribute<StaticConstructorOnStartup>())
                 {
                     //We are calling the constructor of a StaticConstructorOnStartup-Annotated class. In theory.
                     LoaderGM.curConstructor = t;

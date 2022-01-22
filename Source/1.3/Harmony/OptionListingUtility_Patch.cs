@@ -12,7 +12,7 @@ using HarmonyLib;
 
 namespace aRandomKiwi.RimThemes
 {
-    [HarmonyPatch(typeof(OptionListingUtility), "DrawOptionListing"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(OptionListingUtility), "DrawOptionListing")]
     class DrawOptionListing_Patch
     {
         [HarmonyPrefix]

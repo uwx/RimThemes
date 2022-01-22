@@ -402,7 +402,7 @@ namespace aRandomKiwi.RimThemes
                         }
                         catch (Exception e)
                         {
-                            Themes.LogError("Error : " + e.Message);
+                            Themes.LogException("Error : ", e);
                             Themes.DBGUIStyle[theme] = null;
                         }
                     }
@@ -410,7 +410,7 @@ namespace aRandomKiwi.RimThemes
                 }
                 catch (Exception e)
                 {
-                    Themes.LogError("fontsToLoad : " + e.Message);
+                    Themes.LogException("fontsToLoad : ", e);
                 }
             }
         }

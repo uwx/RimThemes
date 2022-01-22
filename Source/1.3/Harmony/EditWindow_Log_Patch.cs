@@ -12,7 +12,7 @@ using HarmonyLib;
 
 namespace aRandomKiwi.RimThemes
 {
-    [HarmonyPatch(typeof(EditWindow_Log), "DoWindowContents"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(EditWindow_Log), "DoWindowContents")]
     class EditWindow_Log_DoWindowContents_PrefixPatch
     {
         [HarmonyPrefix]
@@ -24,7 +24,7 @@ namespace aRandomKiwi.RimThemes
         }
     }
 
-    [HarmonyPatch(typeof(EditWindow_Log), "DoWindowContents"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(EditWindow_Log), "DoWindowContents")]
     class EditWindow_Log_DoWindowContents_PostfixPatch
     {
         [HarmonyPostfix]

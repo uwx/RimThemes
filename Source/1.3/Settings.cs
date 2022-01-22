@@ -56,7 +56,7 @@ namespace aRandomKiwi.RimThemes
 
         public static Vector2 scrollPosition = Vector2.zero;
 
-        public static string curTheme = "-1§Vanilla";
+        public static string curTheme = Themes.VanillaThemeID;
 
         public static void DoSettingsWindowContents(Rect inRect)
         {
@@ -281,13 +281,13 @@ namespace aRandomKiwi.RimThemes
                         }
                         catch(Exception e)
                         {
-                            Themes.LogError("Error while trying to change setting filterMode : " + e.Message);
+                            Themes.LogException("Error while trying to change setting filterMode : ", e);
                         }
                     }
                 }
                 catch(Exception e)
                 {
-                    Themes.LogError("Fatal error while trying to change setting filterMode : " + e.Message);
+                    Themes.LogException("Fatal error while trying to change setting filterMode : ", e);
                 }
                 disableFontFilterModePointPrev = disableFontFilterModePoint;
             }
@@ -329,13 +329,13 @@ namespace aRandomKiwi.RimThemes
                         }
                         catch (Exception e)
                         {
-                            Themes.LogError("Error while trying to toggle tinyFont : " + e.Message);
+                            Themes.LogException("Error while trying to toggle tinyFont : ", e);
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Themes.LogError("Fatal error while trying to change setting tinyFont toggling : " + e.Message);
+                    Themes.LogException("Fatal error while trying to change setting tinyFont toggling : ", e);
                 }
                 Utils.resetCachedLabelWidthCache();
                 disableTinyCustomFontPrev = disableTinyCustomFont;
@@ -358,7 +358,7 @@ namespace aRandomKiwi.RimThemes
             Scribe_Values.Look<int>(ref rimthemesLogoMode, "rimthemesLogoMode", 3);
             Scribe_Values.Look<int>(ref windowsShadowMode, "windowsShadowMode", 3);
             Scribe_Values.Look<int>(ref expansionsIconsMode, "expansionsIconsMode", 3);
-            Scribe_Values.Look<string>(ref curTheme, "curTheme", "-1§Vanilla");
+            Scribe_Values.Look<string>(ref curTheme, "curTheme", Themes.VanillaThemeID);
             Scribe_Values.Look<bool>(ref disableWallpaper, "disableWallpaper", false);
             Scribe_Values.Look<bool>(ref disableCustomFonts, "disableCustomFonts", false);
             Scribe_Values.Look<bool>(ref disableCustomFontsInConsole, "disableCustomFontsInConsole", true);

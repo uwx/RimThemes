@@ -15,7 +15,7 @@ namespace aRandomKiwi.RimThemes
     /*
      * PATCH use to enlarge the learning mastery agichage space which can mess depending on the font size
      */
-    [HarmonyPatch(typeof(TrainingCardUtility), "TryDrawTrainableRow"), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(TrainingCardUtility), "TryDrawTrainableRow")]
     class TrainingCardUtility_FinalizeSaving_Patch
     {
 
@@ -84,7 +84,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch(Exception e)
             {
-                Themes.LogError("TrainingCardUtility Patch : " + e.Message);
+                Themes.LogException("TrainingCardUtility Patch : ", e);
                 return true;
             }
         }

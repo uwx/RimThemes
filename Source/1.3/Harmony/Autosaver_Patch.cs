@@ -9,7 +9,7 @@ using HarmonyLib;
 
 namespace aRandomKiwi.RimThemes
 {
-    [HarmonyPatch(typeof(Autosaver), nameof(Autosaver.DoAutosave)), StaticConstructorOnStartup]
+    [HarmonyPatch(typeof(Autosaver), nameof(Autosaver.DoAutosave))]
     public class Autosaver_DoAutosave_Patch
     {
         [HarmonyPostfix]

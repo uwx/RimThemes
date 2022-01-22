@@ -17,7 +17,7 @@ namespace aRandomKiwi.RimThemes
             Utils.currentModInst = this;
 
             var inst = new Harmony("rimworld.aRandomKiwi.RimTheme");
-            inst.PatchAll(Assembly.GetExecutingAssembly());
+            inst.PatchAll(typeof(RimThemes).Assembly);
             Themes.LogMsg("Init Harmony patchs");
 
             Log.Message(Utils.releaseInfo);

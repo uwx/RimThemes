@@ -11,6 +11,7 @@ using System.Xml;
 using System.Collections;
 using LibAPNG;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using RuntimeAudioClipLoader;
 using Verse.Sound;
 using UnityEngine.Networking;
@@ -23,7 +24,7 @@ namespace aRandomKiwi.RimThemes
     {
         static Themes()
         {
-            BindingFlags NPS = (BindingFlags.NonPublic | BindingFlags.Static);
+            const BindingFlags NPS = (BindingFlags.NonPublic | BindingFlags.Static);
 
             /************************************************************************* Textures **********************************************************************/
             //Init of the list of variables of interest of textures
@@ -261,7 +262,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch(Exception e)
             {
-                Themes.LogError("Cannot load core : "+e.Message);
+                Themes.LogException("Cannot load core : ", e);
                 return;
             }
 
@@ -280,11 +281,10 @@ namespace aRandomKiwi.RimThemes
             }
             catch (Exception e)
             {
-                Themes.LogError("Cannot load default themes : " + e.Message);
+                Themes.LogException("Cannot load default themes : ", e);
             }
 
             //Theme search in other mods
-            string curMod = "";
 
             try
             {
@@ -292,7 +292,7 @@ namespace aRandomKiwi.RimThemes
                 for (int i = runningModsListForReading.Count - 1; i >= 0; i--)
                 {
                     ModContentPack cmod = runningModsListForReading[i];
-                    curMod = cmod.RootDir + Path.DirectorySeparatorChar + "RimThemes";
+                    var curMod = cmod.RootDir + Path.DirectorySeparatorChar + "RimThemes";
                     //Theme folder found
                     if (Directory.Exists(curMod))
                     {
@@ -307,10 +307,12 @@ namespace aRandomKiwi.RimThemes
                         }
                         catch (Exception e)
                         {
-                            Themes.LogError("Cannot load " + cmod.Name + "'s themes : " + e.Message);
+                            Themes.LogException("Cannot load " + cmod.Name + "'s themes : ", e);
                         }
                     }
                 }
+
+                //ActiveTheme = new ActiveTheme(Settings.curTheme); // load vanilla ActiveTheme
 
                 //Custom cursor application if applicable
                 CustomCursor.Deactivate();
@@ -325,7 +327,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch (Exception e)
             {
-                Themes.LogError(" Unhandled error at startInit : "+e.Message);
+                Themes.LogException(" Unhandled error at startInit : ", e);
             }
         }
 
@@ -439,7 +441,7 @@ namespace aRandomKiwi.RimThemes
                                         }
                                         catch (Exception e)
                                         {
-                                            Themes.LogError("Invalid custom texture " + curTexName + " : " + e.Message);
+                                            Themes.LogException("Invalid custom texture " + curTexName + " : ", e);
                                         }
                                     }
                                 }
@@ -448,7 +450,7 @@ namespace aRandomKiwi.RimThemes
                     }
                     catch (Exception e)
                     {
-                        Themes.LogError("Fatal error in custom textures processing : " + e.Message);
+                        Themes.LogException("Fatal error in custom textures processing : ", e);
                     }
 
                     //If available loading the animated background
@@ -509,14 +511,14 @@ namespace aRandomKiwi.RimThemes
                                 }
                                 catch (Exception e)
                                 {
-                                    Themes.LogError("Invalid custom sound " + curSoundName + " : " + e.Message);
+                                    Themes.LogException("Invalid custom sound " + curSoundName + " : ", e);
                                 }
                             }
                         }
                     }
                     catch (Exception e)
                     {
-                        Themes.LogError("Fatal error in custom sound processing : " + e.Message);
+                        Themes.LogException("Fatal error in custom sound processing : ", e);
                     }
 
 
@@ -550,7 +552,7 @@ namespace aRandomKiwi.RimThemes
                     }
                     catch (Exception e)
                     {
-                        Themes.LogError("Fatal error in custom song pre-processing : " + e.Message);
+                        Themes.LogException("Fatal error in custom song pre-processing : ", e);
                     }
 
                     //Addition of the theme to the list of available themes
@@ -570,12 +572,12 @@ namespace aRandomKiwi.RimThemes
                 }
                 catch (Exception e)
                 {
-                    Themes.LogError("Fatal error in custom fonts package pre-processing : " + e.Message);
+                    Themes.LogException("Fatal error in custom fonts package pre-processing : ", e);
                 }
             }
             catch(Exception e)
             {
-                Themes.LogError("Fatal error in loadThemesInFolder : " + e.Message);
+                Themes.LogException("Fatal error in loadThemesInFolder : ", e);
             }
         }
 
@@ -600,8 +602,6 @@ namespace aRandomKiwi.RimThemes
 
                 DBGUIStyle[themeID] = null;
 
-                string tag;
-                string value;
                 //Buffer dictionary used to store customFontX sequentially before pushing into the fontsToLoad list
                 Dictionary<string, string> fontToLoadEntry = new Dictionary<string, string>();
 
@@ -615,8 +615,8 @@ namespace aRandomKiwi.RimThemes
                         {
                             if (reader.NodeType == XmlNodeType.Element)
                             {
-                                tag = reader.Name;
-                                value = reader.ReadString();
+                                var tag = reader.Name;
+                                var value = reader.ReadString();
 
                                 //Log.Message(tag+" "+value);
                                 //Tab mark containing a color ('.') (ClassName and fieldName concatenated)
@@ -631,11 +631,11 @@ namespace aRandomKiwi.RimThemes
                                             DBColor[themeID][tmp[0]] = new Dictionary<string, Color>();
                                         try
                                         {
-                                            DBColor[themeID][tmp[0]][tmp[1]] = (Color)ParseHelper.FromString(value, typeof(Color));
+                                            DBColor[themeID][tmp[0]][tmp[1]] = ParseHelper.FromString<Color>(value);
                                         }
                                         catch (Exception e)
                                         {
-                                            Themes.LogError("Cannot parse field " + tag + " : " + e.Message);
+                                            Themes.LogException("Cannot parse field " + tag + " : ", e);
                                         }
                                     }
                                 }
@@ -658,7 +658,7 @@ namespace aRandomKiwi.RimThemes
                                             case "textcolormangenta":
                                                 try
                                                 {
-                                                    Color c = (Color)ParseHelper.FromString(value, typeof(Color));
+                                                    Color c = ParseHelper.FromString<Color>(value);
                                                     switch (tag)
                                                     {
                                                         case "textcolorwhite":
@@ -702,7 +702,7 @@ namespace aRandomKiwi.RimThemes
                                             case "texturecolormangenta":
                                                 try
                                                 {
-                                                    Color c = (Color)ParseHelper.FromString(value, typeof(Color));
+                                                    Color c = ParseHelper.FromString<Color>(value);
                                                     switch (tag)
                                                     {
                                                         case "texturecolorwhite":
@@ -739,7 +739,7 @@ namespace aRandomKiwi.RimThemes
                                             case "textcolorfactionneutral":
                                                 try
                                                 {
-                                                    Color c = (Color)ParseHelper.FromString(value, typeof(Color));
+                                                    Color c = ParseHelper.FromString<Color>(value);
                                                     DBTextColorFactionsNeutral[themeID] = c;
                                                 }
                                                 catch (Exception e)
@@ -749,7 +749,7 @@ namespace aRandomKiwi.RimThemes
                                                 break;
                                             //Old tag for adding a font not dependent on a language and sizes according to the 3 sizes of RimWorld
                                             case "font":
-                                                var d = new Dictionary<string, string>();
+                                                //var d = new Dictionary<string, string>();
                                                 fontToLoadEntry["font"] = value;
                                                 fontToLoadEntry["themeID"] = themeID;
                                                 //fontsToLoad.Add(d);
@@ -784,15 +784,15 @@ namespace aRandomKiwi.RimThemes
                                             case "buttonhovercolor":
                                             case "buttonclickcolor":
                                             case "tapestrybordercolor":
-                                                DBColor[themeID][MiscKey][tag] = (Color)ParseHelper.FromString(value, typeof(Color));
+                                                DBColor[themeID][MiscKey][tag] = ParseHelper.FromString<Color>(value);
                                                 break;
                                             case "dyncolor":
                                                 string[] parts = value.Split('=');
                                                 if (parts.Length == 2)
                                                 {
                                                     Themes.LogMsg("Found dynColor " + parts[0] + " => " + parts[1]);
-                                                    Color c1 = (Color)ParseHelper.FromString(parts[0], typeof(Color));
-                                                    Color c2 = (Color)ParseHelper.FromString(parts[1], typeof(Color));
+                                                    Color c1 = ParseHelper.FromString<Color>(parts[0]);
+                                                    Color c2 = ParseHelper.FromString<Color>(parts[1]);
                                                     DBDynColor[themeID][c1] = c2;
                                                 }
                                                 break;
@@ -816,7 +816,7 @@ namespace aRandomKiwi.RimThemes
                                     }
                                     catch (Exception e)
                                     {
-                                        Themes.LogError("Cannot parse tag " + tag + " : " + e.Message);
+                                        Themes.LogException("Cannot parse tag " + tag + " : ", e);
                                     }
                                 }
                             }
@@ -828,7 +828,7 @@ namespace aRandomKiwi.RimThemes
                 }
                 catch (Exception e)
                 {
-                    Themes.LogError("Cannot parse meta.xml " + e.Message);
+                    Themes.LogException("Cannot parse meta.xml ", e);
                 }
             }
         }
@@ -875,7 +875,10 @@ namespace aRandomKiwi.RimThemes
 
                     //Application theme at startup, if theme vanilla does not need to be loaded it is already the case
                     if (theme == VanillaThemeID)
+                    {
+                        ActiveTheme = new ActiveTheme(theme);
                         return;
+                    }
                 }
 
                 //Vanilla base theme restore only if current theme not vanilla
@@ -905,7 +908,7 @@ namespace aRandomKiwi.RimThemes
 
                 //Save theme change
                 Settings.curTheme = newTheme;
-                ActiveTheme = new ActiveTheme(newTheme);
+                ActiveTheme = new ActiveTheme(Settings.curTheme);
                 Utils.modSettings.Write();
 
                 changeSoundTheme();
@@ -987,7 +990,7 @@ namespace aRandomKiwi.RimThemes
             }
             catch (Exception e)
             {
-                Themes.LogError("changeSoundTheme : " + e.Message);
+                Themes.LogException("changeSoundTheme : ", e);
             }
         }
 
@@ -1035,7 +1038,7 @@ namespace aRandomKiwi.RimThemes
                 }
                 catch(Exception e)
                 {
-                    Themes.LogError("changeSoundTheme : " + e.Message);
+                    Themes.LogException("changeSoundTheme : ", e);
                 }
             }
         }
@@ -1115,44 +1118,44 @@ namespace aRandomKiwi.RimThemes
             if (!db.ContainsKey(theme))
                 return;
 
-            if ((typeof(T) != typeof(Texture2D))){
+            if (typeof(T) != typeof(Texture2D)){
                 typeTex = false;
                 curFOI = fieldsOfInterestColor;
             }
 
             //Browse all the fields Of interest present for the current theme in order to substitute the fields in the RW classes
             //For each class of interest
-            foreach (var fields in curFOI)
+            foreach (var (key, value) in curFOI)
             {
                 try
                 {
                     //If the theme has overloads for the current classname
-                    if (db[theme].ContainsKey(fields.Key))
+                    if (db[theme].ContainsKey(key))
                     {
                         //Namespace deduction
                         string ns = "Verse";
                         if(typeTex)
                         {
-                            if (fieldsOfInterestTexNS.ContainsKey(fields.Key))
-                                ns = fieldsOfInterestTexNS[fields.Key];
+                            if (fieldsOfInterestTexNS.TryGetValue(key, out var ns1))
+                                ns = ns1;
                         }
                         else
                         {
-                            if (fieldsOfInterestColorNS.ContainsKey(fields.Key))
-                                ns = fieldsOfInterestColorNS[fields.Key];
+                            if (fieldsOfInterestColorNS.TryGetValue(key, out var ns1))
+                                ns = ns1;
                         }
 
 
                         //Obtaining the type
-                        Type classType = typeof(FloatMenuOption).Assembly.GetType(ns+"." + fields.Key);
+                        Type classType = typeof(FloatMenuOption).Assembly.GetType(ns+"." + key);
 
                         //For each of the texture variables of interest we save the texture reference
-                        foreach (var field in fields.Value)
+                        foreach (var field in value)
                         {
                             try
                             {
                                 //If the theme has an overload for the current fieldName
-                                if (db[theme][fields.Key].ContainsKey(field.field) && db[theme][fields.Key][field.field] != null)
+                                if (db[theme][key].ContainsKey(field.field) && db[theme][key][field.field] != null)
                                 {
                                     //LogMsg("Overwrite " + ns + "." + fields.Key+"."+field.field);
                                     //Traverse.CreateWithType(ns + "." + fields.Key).Field(field.field).SetValue(db[theme][fields.Key][field.field]);
@@ -1161,11 +1164,11 @@ namespace aRandomKiwi.RimThemes
                                     //We overwrite the data in memory
                                     if (typeTex)
                                     {
-                                        ((Texture2D)classType.GetField(field.field, (BindingFlags)field.bf).GetValue(null)).LoadImage(((Texture2D)(object)db[theme][fields.Key][field.field]).EncodeToPNG());
+                                        ((Texture2D)classType.GetField(field.field, field.bf).GetValue(null)).LoadImage(((Texture2D)(object)db[theme][key][field.field]).EncodeToPNG());
                                     }
                                     else
                                     {
-                                        classType.GetField(field.field, (BindingFlags)field.bf).SetValue(null, db[theme][fields.Key][field.field]);
+                                        classType.GetField(field.field, field.bf).SetValue(null, db[theme][key][field.field]);
                                     }
                                 }
                                 else
@@ -1175,14 +1178,14 @@ namespace aRandomKiwi.RimThemes
                             }
                             catch (Exception e)
                             {
-                                LogMsg("changeTheme ("+typeof(T)+") : Cannot set field " + fields.Key + "." + field.field+" : "+e.Message);
+                                LogMsg("changeTheme ("+typeof(T)+") : Cannot set field " + key + "." + field.field+" : "+e.Message);
                             }
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Themes.LogError("changeTheme (" + typeof(T) + ") : Cannot get class " + fields.Key+" : "+e.Message);
+                    Themes.LogError("changeTheme (" + typeof(T) + ") : Cannot get class " + key+" : "+e.Message);
                 }
             }
         }
@@ -1199,17 +1202,17 @@ namespace aRandomKiwi.RimThemes
                 {
                     if (ass[i].GetName().Name == "RecipeIcons")
                     {
-                        Type classType = ass[i].GetType("RecipeIcons.FloatMenuOptionLeft");
+                        Type classType = ass[i].GetType("RecipeIcons.RecipeTooltip");
                         classType.GetField("ColorBGActive", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorBGActive"]);
-                        classType.GetField("ColorBGActiveMouseover", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorBGActiveMouseover"]);
-                        classType.GetField("ColorBGDisabled", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorBGDisabled"]);
+                        //classType.GetField("ColorBGActiveMouseover", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorBGActiveMouseover"]);
+                        //classType.GetField("ColorBGDisabled", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorBGDisabled"]);
                         classType.GetField("ColorTextActive", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorTextActive"]);
-                        classType.GetField("ColorTextDisabled", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorTextDisabled"]);
+                        //classType.GetField("ColorTextDisabled", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorTextDisabled"]);
                     }
                 }
                 catch (Exception e)
                 {
-                    Themes.LogError("Cannot apply theme on custom assembly : " + e.Message);
+                    Themes.LogException("Cannot apply theme on custom assembly : ", e);
                 }
             }
         }
@@ -1219,41 +1222,42 @@ namespace aRandomKiwi.RimThemes
          */
         public static void saveVanillaRsc<T>(Dictionary<string, Dictionary<string, Dictionary<string, T>>> db)
         {
-            string theme = VanillaThemeID;
+            const string theme = VanillaThemeID;
+            
             db[theme] = new Dictionary<string, Dictionary<string, T>>();
             Dictionary<string, List<FOI>> curFOI = fieldsOfInterestTex;
             bool typeTex = true;
 
-            if ((typeof(T) != typeof(Texture2D)))
+            if (typeof(T) != typeof(Texture2D))
             {
                 typeTex = false;
                 curFOI = fieldsOfInterestColor;
             }
             //Browse all the fields Of interest present for the current theme in order to substitute the fields in the RW classes
             //For each class of interest
-            foreach (var fields in curFOI)
+            foreach (var (key, value) in curFOI)
             {
                 try
                 {
-                    db[theme][fields.Key] = new Dictionary<string, T>();
+                    db[theme][key] = new Dictionary<string, T>();
                     //Namespace deduction
                     string ns = "Verse";
                     if (typeTex)
                     {
-                        if (fieldsOfInterestTexNS.ContainsKey(fields.Key))
-                            ns = fieldsOfInterestTexNS[fields.Key];
+                        if (fieldsOfInterestTexNS.TryGetValue(key, out var ns1))
+                            ns = ns1;
                     }
                     else
                     {
-                        if (fieldsOfInterestColorNS.ContainsKey(fields.Key))
-                            ns = fieldsOfInterestColorNS[fields.Key];
+                        if (fieldsOfInterestColorNS.TryGetValue(key, out var ns1))
+                            ns = ns1;
                     }
 
                     //Obtaining the type
-                    Type classType = typeof(FloatMenuOption).Assembly.GetType(ns + "." + fields.Key);
+                    Type classType = typeof(FloatMenuOption).Assembly.GetType(ns + "." + key);
 
                     //For each of the texture variables of interest we save the texture reference
-                    foreach (var field in fields.Value)
+                    foreach (var field in value)
                     {
                         try
                         {
@@ -1261,23 +1265,23 @@ namespace aRandomKiwi.RimThemes
                             //We duplicate the textures and the data in memory
                             if (typeTex)
                             {
-                                Dictionary<string,Texture2D> savedTex = (Dictionary<string,Texture2D>)((object)db[theme][fields.Key]);
-                                Texture2D curTex = ((Texture2D)classType.GetField(field.field, (BindingFlags)field.bf).GetValue(null));
+                                Dictionary<string,Texture2D> savedTex = (Dictionary<string,Texture2D>)((object)db[theme][key]);
+                                Texture2D curTex = ((Texture2D)classType.GetField(field.field, field.bf).GetValue(null));
                                 savedTex[field.field] = new Texture2D(curTex.width, curTex.height, TextureFormat.RGBA32, false);
                                 savedTex[field.field].LoadImage(curTex.EncodeToPNG());
                             }
                             else
                             {
-                                Dictionary<string,Color> savedColor = (Dictionary<string,Color>)((object)db[theme][fields.Key]);
-                                savedColor[field.field] = (Color)classType.GetField(field.field, (BindingFlags)field.bf).GetValue(null);
+                                Dictionary<string,Color> savedColor = (Dictionary<string,Color>)((object)db[theme][key]);
+                                savedColor[field.field] = (Color)classType.GetField(field.field, field.bf).GetValue(null);
                             }
                         }
-                        catch (Exception _e)
+                        catch
                         {
                             try
                             {
-                                Dictionary<string, Texture2D> savedTex = (Dictionary<string, Texture2D>)((object)db[theme][fields.Key]);
-                                Texture2D curTex = ((Texture2D)classType.GetField(field.field, (BindingFlags)field.bf).GetValue(null));
+                                Dictionary<string, Texture2D> savedTex = (Dictionary<string, Texture2D>)((object)db[theme][key]);
+                                Texture2D curTex = ((Texture2D)classType.GetField(field.field, field.bf).GetValue(null));
                                 curTex.filterMode = FilterMode.Point;
                                 RenderTexture rt = RenderTexture.GetTemporary(curTex.width, curTex.height);
                                 RenderTexture.active = rt;
@@ -1291,14 +1295,14 @@ namespace aRandomKiwi.RimThemes
                             }
                             catch (Exception e)
                             {
-                                Themes.LogError("saveVanillaRsc (" + typeof(T) + ")  : Cannot save field " + fields.Key + "." + field.field + " : " + e.Message);
+                                Themes.LogException("saveVanillaRsc (" + typeof(T) + ")  : Cannot save field " + key + "." + field.field + " : ", e);
                             }
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Themes.LogError("saveVanillaRsc (" + typeof(T) + ")  : Cannot get class " + fields.Key+" : "+e.Message);
+                    Themes.LogError("saveVanillaRsc (" + typeof(T) + ")  : Cannot get class " + key+" : "+e.Message);
                 }
             }
         }
@@ -1334,7 +1338,7 @@ namespace aRandomKiwi.RimThemes
         public static Texture2D getThemeTex(string className,string fieldName,string dtheme = "")
         {
             if (dtheme.Length == 0)
-                return ActiveTheme.DBTex.TryGetValue((className, fieldName), out var result)
+                return ActiveTheme.DBTex != null && ActiveTheme.DBTex.TryGetValue((className, fieldName), out var result)
                     ? result
                     : null;
 
@@ -1402,31 +1406,27 @@ namespace aRandomKiwi.RimThemes
                 theme = forcedFontTheme;
 
             if (Settings.disableCustomFonts)
-            {
                 return null;
-            }
 
             //Extract from cache
             switch (gf)
             {
                 case GameFont.Tiny:
-                    if (cacheGetDBGUIStyleTiny != null && cacheGetDBGUIStyleTinyTheme == theme)
+                    if (cacheGetDBGUIStyleTiny != null && ReferenceEquals(cacheGetDBGUIStyleTinyTheme, theme))
                         return cacheGetDBGUIStyleTiny;
                     break;
                 case GameFont.Small:
-                    if (cacheGetDBGUIStyleSmall != null && cacheGetDBGUIStyleSmallTheme == theme)
+                    if (cacheGetDBGUIStyleSmall != null && ReferenceEquals(cacheGetDBGUIStyleSmallTheme, theme))
                         return cacheGetDBGUIStyleSmall;
                     break;
                 case GameFont.Medium:
-                    if (cacheGetDBGUIStyleMedium != null && cacheGetDBGUIStyleMediumTheme == theme)
+                    if (cacheGetDBGUIStyleMedium != null && ReferenceEquals(cacheGetDBGUIStyleMediumTheme, theme))
                         return cacheGetDBGUIStyleMedium;
                     break;
             }
 
             if (!DBGUIStyle.TryGetValue(theme, out var p1) || p1 == null)
-            {
                 return null;
-            }
 
             //Put in cache
             switch (gf)
@@ -1565,7 +1565,7 @@ namespace aRandomKiwi.RimThemes
                         }
                         catch (Exception e)
                         {
-                            Themes.LogError("getThemeLoader processing meta.xml : " + e.Message);
+                            Themes.LogException("getThemeLoader processing meta.xml : ", e);
                         }
                     }
 
@@ -1632,7 +1632,7 @@ namespace aRandomKiwi.RimThemes
                         }
                         catch (Exception e)
                         {
-                            Themes.LogError("getThemeLoader processing meta.xml : " + e.Message);
+                            Themes.LogException("getThemeLoader processing meta.xml : ", e);
                         }
                     }
 
@@ -1715,7 +1715,7 @@ namespace aRandomKiwi.RimThemes
                             }
                             catch (Exception e)
                             {
-                                Themes.LogError("getThemeLoader processing meta.xml : " + e.Message);
+                                Themes.LogException("getThemeLoader processing meta.xml : ", e);
                             }
                         }
 
@@ -1947,6 +1947,10 @@ namespace aRandomKiwi.RimThemes
             Log.Message("[RimThemesError] " + msg);
         }
 
+        public static void LogException(string msg, Exception exception)
+        {
+            Log.Message("[RimThemesError] " + msg + "\n" + exception);
+        }
 
 
         /*
@@ -1955,12 +1959,11 @@ namespace aRandomKiwi.RimThemes
         public static void drawParticle(Rect rect)
         {
             Texture2D tex = getThemeParticle();
-            string partMode;
 
             if (Settings.disableParticle || tex == null || rect.width < 80f)
                 return;
 
-            partMode = getText("particlemode");
+            var partMode = getText("particlemode");
             bool mono;
 
             if (partMode == "mono")
