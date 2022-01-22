@@ -405,7 +405,7 @@ namespace aRandomKiwi.RimThemes
                             Themes.DBLoader[entry.Key][i] = null;
                     }
                 }
-                Themes.RDBTexTapestry.Clear();
+                Themes.RDBLoader.Clear();
             }
 
             // bacjkground loader
