@@ -133,7 +133,7 @@ namespace aRandomKiwi.RimThemes
                     }
 
                     Texture bg = Themes.getThemeTex("UI_BackgroundMain", "BGPlanet",curTheme);
-                    if (bg != null)
+                    if (!ReferenceEquals(bg, null))
                         GUI.DrawTexture(position, bg, ScaleMode.ScaleToFit);
                 }
 
