@@ -68,7 +68,7 @@ namespace aRandomKiwi.RimThemes
                     //Check if desired loader
                     if (frames != null)
                     {
-                        index = index % frames.Length;
+                        index %= frames.Length;
                         Texture2D curTex = frames[index];
 
                         GUI.color = Color.white;
@@ -294,23 +294,20 @@ namespace aRandomKiwi.RimThemes
          */
         private void loadThemesTextures()
         {
-            int i,nb;
-            Texture2D tex;
-
             //Icones de theme
-            nb = Themes.RDBTexThemeIcon.Count;
+            var nb = Themes.RDBTexThemeIcon.Count;
             if (nb != 0)
             {    
-                foreach(var entry in Themes.RDBTexThemeIcon)
+                foreach(var (key, _) in Themes.RDBTexThemeIcon)
                 {
-                    if (Themes.RDBTexThemeIcon[entry.Key] != null)
+                    if (Themes.RDBTexThemeIcon[key] != null)
                     {
-                        tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                        tex.LoadImage(Themes.RDBTexThemeIcon[entry.Key]);
-                        Themes.DBTexThemeIcon[entry.Key] = tex;
+                        var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
+                        tex.LoadImage(Themes.RDBTexThemeIcon[key]);
+                        Themes.DBTexThemeIcon[key] = tex;
                     }
                     else
-                        Themes.DBTexThemeIcon[entry.Key] = null;
+                        Themes.DBTexThemeIcon[key] = null;
                 }
                 Themes.RDBTexThemeIcon.Clear();
             }
@@ -319,16 +316,16 @@ namespace aRandomKiwi.RimThemes
             nb = Themes.RDBTexParticle.Count;
             if (nb != 0)
             {
-                foreach (var entry in Themes.RDBTexParticle)
+                foreach (var (key, _) in Themes.RDBTexParticle)
                 {
-                    if (Themes.RDBTexParticle[entry.Key] != null)
+                    if (Themes.RDBTexParticle[key] != null)
                     {
-                        tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                        tex.LoadImage(Themes.RDBTexParticle[entry.Key]);
-                        Themes.DBTexParticle[entry.Key] = tex;
+                        var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
+                        tex.LoadImage(Themes.RDBTexParticle[key]);
+                        Themes.DBTexParticle[key] = tex;
                     }
                     else
-                        Themes.DBTexParticle[entry.Key] = null;
+                        Themes.DBTexParticle[key] = null;
                 }
                 Themes.RDBTexParticle.Clear();
             }
@@ -337,16 +334,16 @@ namespace aRandomKiwi.RimThemes
             nb = Themes.RDBTexTapestry.Count;
             if (nb != 0)
             {
-                foreach (var entry in Themes.RDBTexTapestry)
+                foreach (var (key, _) in Themes.RDBTexTapestry)
                 {
-                    if (Themes.RDBTexTapestry[entry.Key] != null)
+                    if (Themes.RDBTexTapestry[key] != null)
                     {
-                        tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                        tex.LoadImage(Themes.RDBTexTapestry[entry.Key]);
-                        Themes.DBTexTapestry[entry.Key] = tex;
+                        var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
+                        tex.LoadImage(Themes.RDBTexTapestry[key]);
+                        Themes.DBTexTapestry[key] = tex;
                     }
                     else
-                        Themes.DBTexTapestry[entry.Key] = null;
+                        Themes.DBTexTapestry[key] = null;
                 }
                 Themes.RDBTexTapestry.Clear();
             }
@@ -355,16 +352,16 @@ namespace aRandomKiwi.RimThemes
             nb = Themes.RDBTexLoaderText.Count;
             if (nb != 0)
             {
-                foreach (var entry in Themes.RDBTexLoaderText)
+                foreach (var (key, _) in Themes.RDBTexLoaderText)
                 {
-                    if (Themes.RDBTexLoaderText[entry.Key] != null)
+                    if (Themes.RDBTexLoaderText[key] != null)
                     {
-                        tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                        tex.LoadImage(Themes.RDBTexLoaderText[entry.Key]);
-                        Themes.DBTexLoaderText[entry.Key] = tex;
+                        var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
+                        tex.LoadImage(Themes.RDBTexLoaderText[key]);
+                        Themes.DBTexLoaderText[key] = tex;
                     }
                     else
-                        Themes.DBTexLoaderText[entry.Key] = null;
+                        Themes.DBTexLoaderText[key] = null;
                 }
                 Themes.RDBTexLoaderText.Clear();
             }
@@ -373,16 +370,16 @@ namespace aRandomKiwi.RimThemes
             nb = Themes.RDBTexLoaderBar.Count;
             if (nb != 0)
             {
-                foreach (var entry in Themes.RDBTexLoaderBar)
+                foreach (var (key, _) in Themes.RDBTexLoaderBar)
                 {
-                    if (Themes.RDBTexLoaderBar[entry.Key] != null)
+                    if (Themes.RDBTexLoaderBar[key] != null)
                     {
-                        tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                        tex.LoadImage(Themes.RDBTexLoaderBar[entry.Key]);
-                        Themes.DBTexLoaderBar[entry.Key] = tex;
+                        var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
+                        tex.LoadImage(Themes.RDBTexLoaderBar[key]);
+                        Themes.DBTexLoaderBar[key] = tex;
                     }
                     else
-                        Themes.DBTexLoaderBar[entry.Key] = null;
+                        Themes.DBTexLoaderBar[key] = null;
                 }
                 Themes.RDBTexLoaderBar.Clear();
             }
@@ -391,18 +388,18 @@ namespace aRandomKiwi.RimThemes
             nb = Themes.RDBLoader.Count;
             if (nb != 0)
             {
-                foreach (var entry in Themes.RDBLoader)
+                foreach (var (key, value) in Themes.RDBLoader)
                 {
-                    for(i =0; i != entry.Value.Length;i++)
+                    for (var i = 0; i != value.Length; i++)
                     {
-                        if (entry.Value[i] != null)
+                        if (value[i] != null)
                         {
-                            tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                            tex.LoadImage(entry.Value[i]);
-                            Themes.DBLoader[entry.Key][i] = tex;
+                            var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
+                            tex.LoadImage(value[i]);
+                            Themes.DBLoader[key][i] = tex;
                         }
                         else
-                            Themes.DBLoader[entry.Key][i] = null;
+                            Themes.DBLoader[key][i] = null;
                     }
                 }
                 Themes.RDBLoader.Clear();
@@ -412,16 +409,16 @@ namespace aRandomKiwi.RimThemes
             nb = Themes.RDBBGLoader.Count;
             if (nb != 0)
             {
-                foreach (var entry in Themes.RDBBGLoader)
+                foreach (var (key, _) in Themes.RDBBGLoader)
                 {
-                    if (Themes.RDBBGLoader[entry.Key] != null)
+                    if (Themes.RDBBGLoader[key] != null)
                     {
-                        tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                        tex.LoadImage(Themes.RDBBGLoader[entry.Key]);
-                        Themes.DBBGLoader[entry.Key] = tex;
+                        var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
+                        tex.LoadImage(Themes.RDBBGLoader[key]);
+                        Themes.DBBGLoader[key] = tex;
                     }
                     else
-                        Themes.DBBGLoader[entry.Key] = null;
+                        Themes.DBBGLoader[key] = null;
                 }
                 Themes.RDBBGLoader.Clear();
             }
@@ -430,28 +427,28 @@ namespace aRandomKiwi.RimThemes
             nb = Themes.RDBTex.Count;
             if (nb != 0)
             {
-                foreach (var entry in Themes.RDBTex)
+                foreach (var (theme, dict1) in Themes.RDBTex)
                 {
-                    if (!Themes.DBTex.ContainsKey(entry.Key) || Themes.DBTex[entry.Key] == null)
-                        Themes.DBTex[entry.Key] = new Dictionary<string, Dictionary<string, Texture2D>>();
+                    if (!Themes.DBTex.ContainsKey(theme) || Themes.DBTex[theme] == null)
+                        Themes.DBTex[theme] = new Dictionary<string, Dictionary<string, Texture2D>>();
 
-                    foreach (var entry2 in entry.Value)
+                    foreach (var (type, dict2) in dict1)
                     {
-                        if (entry2.Value != null)
+                        if (dict2 != null)
                         {
-                            if (!Themes.DBTex[entry.Key].ContainsKey(entry2.Key) || Themes.DBTex[entry.Key][entry2.Key] == null)
-                                Themes.DBTex[entry.Key][entry2.Key] = new Dictionary<string, Texture2D>();
+                            if (!Themes.DBTex[theme].TryGetValue(type, out var existingDict) == false || existingDict == null)
+                                Themes.DBTex[theme][type] = new Dictionary<string, Texture2D>();
 
-                            foreach (var entry3 in entry2.Value)
+                            foreach (var (field, bytes) in dict2)
                             {
-                                if (entry3.Value != null)
+                                if (bytes != null)
                                 {
-                                    tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                                    tex.LoadImage(entry3.Value);
-                                    Themes.DBTex[entry.Key][entry2.Key][entry3.Key] = tex;
+                                    var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
+                                    tex.LoadImage(bytes);
+                                    Themes.DBTex[theme][type][field] = tex;
                                 }
                                 else
-                                    Themes.DBTex[entry.Key][entry2.Key][entry3.Key] = null;
+                                    Themes.DBTex[theme][type][field] = null;
                             }
                         }
                         
