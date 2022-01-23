@@ -11,10 +11,10 @@ namespace aRandomKiwi.RimThemes
         public readonly string field;
         public readonly BindingFlags bf;
 
-        public FOI(string field, BindingFlags bf = (BindingFlags.Public | BindingFlags.Static))
+        public FOI(string field, BindingFlags bf = BindingFlags.Public | BindingFlags.Static)
         {
             this.field = field;
             this.bf = bf;
         }
-    };
+    }
 }
