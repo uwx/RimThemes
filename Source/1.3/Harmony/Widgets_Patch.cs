@@ -38,13 +38,17 @@ namespace aRandomKiwi.RimThemes
                     if (buttonNoTex is not "true")
                     {
                         Texture2D atlas;
-                        if (Input.GetMouseButton(0))
+                        
+                        if (Mouse.IsOver(rect))
                         {
-                            atlas = Themes.getThemeTex("Widgets", "ButtonBGAtlasClick");
-                        }
-                        else if (Mouse.IsOver(rect))
-                        {
-                            atlas = Themes.getThemeTex("Widgets", "ButtonBGAtlasMouseover");
+                            if (Input.GetMouseButton(0))
+                            {
+                                atlas = Themes.getThemeTex("Widgets", "ButtonBGAtlasClick");
+                            }
+                            else
+                            {
+                                atlas = Themes.getThemeTex("Widgets", "ButtonBGAtlasMouseover");
+                            }
                         }
                         else
                         {
