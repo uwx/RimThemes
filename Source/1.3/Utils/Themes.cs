@@ -13,6 +13,7 @@ using LibAPNG;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using RuntimeAudioClipLoader;
+using UnityEngine.Experimental.Rendering;
 using Verse.Sound;
 using UnityEngine.Networking;
 // ReSharper disable InconsistentNaming
@@ -1164,7 +1165,9 @@ namespace aRandomKiwi.RimThemes
                                     //We overwrite the data in memory
                                     if (typeTex)
                                     {
-                                        ((Texture2D)classType.GetField(field.field, field.bf).GetValue(null)).LoadImage(((Texture2D)(object)db[theme][key][field.field]).EncodeToPNG());
+                                        var fromTex = (Texture2D) (object) db[theme][key][field.field];
+                                        var toTex = (Texture2D) classType.GetField(field.field, field.bf).GetValue(null);
+                                        Graphics.CopyTexture(fromTex, toTex);
                                     }
                                     else
                                     {
@@ -1195,19 +1198,24 @@ namespace aRandomKiwi.RimThemes
             //Applying patches for crappy mods that overrides graphic elements
             const BindingFlags NPS = (BindingFlags.NonPublic | BindingFlags.Static);
 
-            Assembly[] ass = AppDomain.CurrentDomain.GetAssemblies();
-            for (int i = 0; i != ass.Length; i++)
+            foreach (var ass in AppDomain.CurrentDomain.GetAssemblies())
             {
                 try
                 {
-                    if (ass[i].GetName().Name == "RecipeIcons")
+                    if (ass.GetName().Name != "RecipeIcons") continue;
+                    
+                    var classType = ass.GetType("RecipeIcons.RecipeTooltip");
+                    if (DBColor[theme].ContainsKey("FloatMenuOption"))
                     {
-                        Type classType = ass[i].GetType("RecipeIcons.RecipeTooltip");
-                        classType.GetField("ColorBGActive", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorBGActive"]);
-                        //classType.GetField("ColorBGActiveMouseover", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorBGActiveMouseover"]);
-                        //classType.GetField("ColorBGDisabled", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorBGDisabled"]);
-                        classType.GetField("ColorTextActive", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorTextActive"]);
-                        //classType.GetField("ColorTextDisabled", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorTextDisabled"]);
+                        if (DBColor[theme]["FloatMenuOption"].ContainsKey("ColorBGActive"))
+                        {
+                            classType.GetField("ColorBGActive", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorBGActive"]);
+                        }
+
+                        if (DBColor[theme]["FloatMenuOption"].ContainsKey("ColorTextActive"))
+                        {
+                            classType.GetField("ColorTextActive", NPS).SetValue(null, DBColor[theme]["FloatMenuOption"]["ColorTextActive"]);
+                        }
                     }
                 }
                 catch (Exception e)
@@ -1259,53 +1267,56 @@ namespace aRandomKiwi.RimThemes
                     //For each of the texture variables of interest we save the texture reference
                     foreach (var field in value)
                     {
-                        try
+                        //LogMsg("Saving vanilla field " + ns + "." + fields.Key + "." + field.field);
+                        //We duplicate the textures and the data in memory
+                        if (typeTex)
                         {
-                            //LogMsg("Saving vanilla field " + ns + "." + fields.Key + "." + field.field);
-                            //We duplicate the textures and the data in memory
-                            if (typeTex)
-                            {
-                                var savedTex = (Dictionary<string, Texture2D>) (object) db[theme][key];
-                                var curTex = (Texture2D) classType.GetField(field.field, field.bf).GetValue(null);
-                                savedTex[field.field] = new Texture2D(curTex.width, curTex.height, curTex.format, curTex.mipmapCount, false);
-                                Graphics.CopyTexture(curTex, savedTex[field.field]);
-                            }
-                            else
-                            {
-                                var savedColor = (Dictionary<string, Color>) (object) db[theme][key];
-                                savedColor[field.field] = (Color)classType.GetField(field.field, field.bf).GetValue(null);
-                            }
+                            var savedTex = (Dictionary<string, Texture2D>) (object) db[theme][key];
+                            var curTex = (Texture2D) classType.GetField(field.field, field.bf).GetValue(null);
+                            
+                            //try
+                            //{
+                            savedTex[field.field] = new Texture2D(curTex.width, curTex.height, curTex.format, curTex.mipmapCount, !GraphicsFormatUtility.IsSRGBFormat(curTex.graphicsFormat));
+                            Graphics.CopyTexture(curTex, savedTex[field.field]);
+                            //}
+                            //catch (Exception e1)
+                            //{
+                            //    Themes.LogException("Failed to copy texture " + classType + "." + field.field + ", falling back to RenderTexture method", e1);
+                            
+                            //    try
+                            //    {
+                            //        curTex.filterMode = FilterMode.Point;
+                            //    
+                            //        var rt = RenderTexture.GetTemporary(curTex.width, curTex.height);
+                            //        RenderTexture.active = rt;
+                            //        try
+                            //        {
+                            //            Graphics.Blit(curTex, rt);
+
+                            //            var img2 = new Texture2D(curTex.width, curTex.height, TextureFormat.RGBA32, false);
+                            //            img2.ReadPixels(new Rect(0, 0, curTex.width, curTex.height), 0, 0, false);
+                            //            img2.Apply(false);
+
+                            //            savedTex[field.field] = new Texture2D(curTex.width, curTex.height, curTex.format, curTex.mipmapCount, !GraphicsFormatUtility.IsSRGBFormat(curTex.graphicsFormat));
+                            //            savedTex[field.field].SetPixels(img2.GetPixels());
+                            //            savedTex[field.field].Apply();
+                            //        }
+                            //        finally
+                            //        {
+                            //            RenderTexture.active = null;
+                            //            rt.Release();
+                            //        }
+                            //    }
+                            //    catch (Exception e2)
+                            //    {
+                            //        Themes.LogException("saveVanillaRsc (" + typeof(T) + ")  : Cannot save field " + key + "." + field.field + " : ", e2);
+                            //    }
+                            //}
                         }
-                        catch
+                        else
                         {
-                            try
-                            {
-                                var savedTex = (Dictionary<string, Texture2D>) (object) db[theme][key];
-                                var curTex = (Texture2D) classType.GetField(field.field, field.bf).GetValue(null);
-                                curTex.filterMode = FilterMode.Point;
-                                
-                                var rt = RenderTexture.GetTemporary(curTex.width, curTex.height);
-                                RenderTexture.active = rt;
-                                try
-                                {
-                                    Graphics.Blit(curTex, rt);
-
-                                    var img2 = new Texture2D(curTex.width, curTex.height, TextureFormat.RGBA32, false);
-                                    img2.ReadPixels(new Rect(0, 0, curTex.width, curTex.height), 0, 0, false);
-                                    img2.Apply(false);
-
-                                    Graphics.CopyTexture(img2, savedTex[field.field]);
-                                }
-                                finally
-                                {
-                                    RenderTexture.active = null;
-                                    rt.Release();
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                Themes.LogException("saveVanillaRsc (" + typeof(T) + ")  : Cannot save field " + key + "." + field.field + " : ", e);
-                            }
+                            var savedColor = (Dictionary<string, Color>) (object) db[theme][key];
+                            savedColor[field.field] = (Color)classType.GetField(field.field, field.bf).GetValue(null);
                         }
                     }
                 }
