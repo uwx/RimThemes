@@ -11,6 +11,7 @@ using Verse.Steam;
 using Verse;
 using HarmonyLib;
 using System.Collections.Generic;
+using System.Text;
 
 namespace aRandomKiwi.RimThemes
 {
@@ -300,14 +301,9 @@ namespace aRandomKiwi.RimThemes
             {    
                 foreach(var (key, _) in Themes.RDBTexThemeIcon)
                 {
-                    if (Themes.RDBTexThemeIcon[key] != null)
-                    {
-                        var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                        tex.LoadImage(Themes.RDBTexThemeIcon[key]);
-                        Themes.DBTexThemeIcon[key] = tex;
-                    }
-                    else
-                        Themes.DBTexThemeIcon[key] = null;
+                    Themes.DBTexThemeIcon[key] = Themes.RDBTexThemeIcon[key] != null
+                        ? Utils.LoadTexture(Themes.RDBTexThemeIcon[key])
+                        : null;
                 }
                 Themes.RDBTexThemeIcon.Clear();
             }
@@ -318,14 +314,9 @@ namespace aRandomKiwi.RimThemes
             {
                 foreach (var (key, _) in Themes.RDBTexParticle)
                 {
-                    if (Themes.RDBTexParticle[key] != null)
-                    {
-                        var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                        tex.LoadImage(Themes.RDBTexParticle[key]);
-                        Themes.DBTexParticle[key] = tex;
-                    }
-                    else
-                        Themes.DBTexParticle[key] = null;
+                    Themes.DBTexParticle[key] = Themes.RDBTexParticle[key] != null
+                        ? Utils.LoadTexture(Themes.RDBTexParticle[key])
+                        : null;
                 }
                 Themes.RDBTexParticle.Clear();
             }
@@ -336,14 +327,9 @@ namespace aRandomKiwi.RimThemes
             {
                 foreach (var (key, _) in Themes.RDBTexTapestry)
                 {
-                    if (Themes.RDBTexTapestry[key] != null)
-                    {
-                        var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                        tex.LoadImage(Themes.RDBTexTapestry[key]);
-                        Themes.DBTexTapestry[key] = tex;
-                    }
-                    else
-                        Themes.DBTexTapestry[key] = null;
+                    Themes.DBTexTapestry[key] = Themes.RDBTexTapestry[key] != null
+                        ? Utils.LoadTexture(Themes.RDBTexTapestry[key])
+                        : null;
                 }
                 Themes.RDBTexTapestry.Clear();
             }
@@ -354,14 +340,9 @@ namespace aRandomKiwi.RimThemes
             {
                 foreach (var (key, _) in Themes.RDBTexLoaderText)
                 {
-                    if (Themes.RDBTexLoaderText[key] != null)
-                    {
-                        var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                        tex.LoadImage(Themes.RDBTexLoaderText[key]);
-                        Themes.DBTexLoaderText[key] = tex;
-                    }
-                    else
-                        Themes.DBTexLoaderText[key] = null;
+                    Themes.DBTexLoaderText[key] = Themes.RDBTexLoaderText[key] != null
+                        ? Utils.LoadTexture(Themes.RDBTexLoaderText[key])
+                        : null;
                 }
                 Themes.RDBTexLoaderText.Clear();
             }
@@ -372,14 +353,9 @@ namespace aRandomKiwi.RimThemes
             {
                 foreach (var (key, _) in Themes.RDBTexLoaderBar)
                 {
-                    if (Themes.RDBTexLoaderBar[key] != null)
-                    {
-                        var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                        tex.LoadImage(Themes.RDBTexLoaderBar[key]);
-                        Themes.DBTexLoaderBar[key] = tex;
-                    }
-                    else
-                        Themes.DBTexLoaderBar[key] = null;
+                    Themes.DBTexLoaderBar[key] = Themes.RDBTexLoaderBar[key] != null
+                        ? Utils.LoadTexture(Themes.RDBTexLoaderBar[key])
+                        : null;
                 }
                 Themes.RDBTexLoaderBar.Clear();
             }
@@ -392,14 +368,9 @@ namespace aRandomKiwi.RimThemes
                 {
                     for (var i = 0; i != value.Length; i++)
                     {
-                        if (value[i] != null)
-                        {
-                            var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                            tex.LoadImage(value[i]);
-                            Themes.DBLoader[key][i] = tex;
-                        }
-                        else
-                            Themes.DBLoader[key][i] = null;
+                        Themes.DBLoader[key][i] = value[i] != null
+                            ? Utils.LoadTexture(value[i])
+                            : null;
                     }
                 }
                 Themes.RDBLoader.Clear();
@@ -411,14 +382,9 @@ namespace aRandomKiwi.RimThemes
             {
                 foreach (var (key, _) in Themes.RDBBGLoader)
                 {
-                    if (Themes.RDBBGLoader[key] != null)
-                    {
-                        var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                        tex.LoadImage(Themes.RDBBGLoader[key]);
-                        Themes.DBBGLoader[key] = tex;
-                    }
-                    else
-                        Themes.DBBGLoader[key] = null;
+                    Themes.DBBGLoader[key] = Themes.RDBBGLoader[key] != null
+                        ? Utils.LoadTexture(Themes.RDBBGLoader[key])
+                        : null;
                 }
                 Themes.RDBBGLoader.Clear();
             }
@@ -443,9 +409,7 @@ namespace aRandomKiwi.RimThemes
                             {
                                 if (bytes != null)
                                 {
-                                    var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
-                                    tex.LoadImage(bytes);
-                                    Themes.DBTex[theme][type][field] = tex;
+                                    Themes.DBTex[theme][type][field] = Utils.LoadTexture(bytes);
                                 }
                                 else
                                     Themes.DBTex[theme][type][field] = null;
@@ -457,7 +421,6 @@ namespace aRandomKiwi.RimThemes
                 Themes.RDBTex.Clear();
             }
         }
-
 
         /*
          * Request to load a music list

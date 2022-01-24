@@ -96,6 +96,7 @@ namespace aRandomKiwi.RimThemes
                 Thread.Sleep(250);
                 //Loading the encoded font bundle into memory
                 Themes.fontsPackage.Add(AssetBundle.LoadFromMemory(FontsPackage.fonts)); //LoadFromFile(Utils.currentMod.RootDir + Path.DirectorySeparatorChar + "fontspackage");
+                Themes.fontsPackage = null;
                 Themes.LogMsg("Load main fonts package OK");
             }
             catch (Exception e)
@@ -103,6 +104,8 @@ namespace aRandomKiwi.RimThemes
                 Themes.fontsPackage = null;
                 Themes.LogException("Loading fonts package : ", e);
             }
+            Array.Resize(ref FontsPackage.fonts, 0);
+            FontsPackage.fonts = null;
 
             //Loading of potential font assetsbundle provided by mods
             foreach (string fbPath in Themes.DBfontsBundleToLoad)
@@ -139,31 +142,43 @@ namespace aRandomKiwi.RimThemes
          */
         static public bool texFileExist(string path)
         {
+            if (File.Exists(path + ".dds"))
+                return true;
             if (File.Exists(path + ".png"))
                 return true;
-            else if (File.Exists(path + ".jpg"))
+            if (File.Exists(path + ".jpg"))
                 return true;
-            else
-                return false;
+            return false;
         }
 
         static public byte[] readAllBytesTexFile(string path)
         {
+            if (File.Exists(path + ".dds"))
+                return Encoding.UTF8.GetBytes("_DDS_" + path);
             if (File.Exists(path + ".png"))
                 return File.ReadAllBytes(path + ".png");
-            else if (File.Exists(path + ".jpg"))
+            if (File.Exists(path + ".jpg"))
                 return File.ReadAllBytes(path + ".jpg");
-            else
-                return null;
+            return null;
         }
 
 
-        static public bool isValidImgExt(string ext)
+        private static readonly byte[] DDSBytes = Encoding.ASCII.GetBytes("_DDS_");
+        public static Texture2D LoadTexture(byte[] bytes)
         {
-            if (ext is ".png" or ".jpg")
-                return true;
-            else
-                return false;
+            if (bytes.Length == 5 && bytes[0] == DDSBytes[0] && bytes[1] == DDSBytes[1] && bytes[2] == DDSBytes[2] && bytes[3] == DDSBytes[3] && bytes[4] == DDSBytes[4])
+            {
+                var tex1 = DDSLoader.LoadDDS(Encoding.UTF8.GetString(bytes, 5, bytes.Length - 5));
+                if (ReferenceEquals(tex1, null))
+                {
+                    Themes.LogError("When loading DDS file: " + DDSLoader.error);
+                }
+
+                return tex1;
+            }
+            var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
+            tex.LoadImage(bytes);
+            return tex;
         }
 
 

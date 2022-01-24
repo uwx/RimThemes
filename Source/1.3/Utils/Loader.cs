@@ -100,6 +100,27 @@ namespace aRandomKiwi.RimThemes
 			texture = new Texture2D(64, 64, TextureFormat.ARGB32, false);
 			texture.LoadImage(Loader.rtUpdateIcon);
 			Loader.rtUpdateIconTex = texture;
+			
+            Array.Resize(ref Loader.data0, 0); Loader.data0 = null;
+            Array.Resize(ref Loader.data1, 0); Loader.data1 = null;
+            Array.Resize(ref Loader.data2, 0); Loader.data2 = null;
+            Array.Resize(ref Loader.data3, 0); Loader.data3 = null;
+            Array.Resize(ref Loader.data4, 0); Loader.data4 = null;
+            Array.Resize(ref Loader.data5, 0); Loader.data5 = null;
+            Array.Resize(ref Loader.data6, 0); Loader.data6 = null;
+            Array.Resize(ref Loader.data7, 0); Loader.data7 = null;
+            Array.Resize(ref Loader.data8, 0); Loader.data8 = null;
+            Array.Resize(ref Loader.data9, 0); Loader.data9 = null;
+            Array.Resize(ref Loader.data10, 0); Loader.data10 = null;
+            Array.Resize(ref Loader.data11, 0); Loader.data11 = null;
+            Array.Resize(ref Loader.bg, 0); Loader.bg = null;
+            Array.Resize(ref Loader.defaultIcon, 0); Loader.defaultIcon = null;
+            Array.Resize(ref Loader.logo, 0); Loader.logo = null;
+            Array.Resize(ref Loader.rtMainLogo, 0); Loader.rtMainLogo = null;
+            Array.Resize(ref Loader.logoSmall, 0); Loader.logoSmall = null;
+            Array.Resize(ref Loader.logoSmallSel, 0); Loader.logoSmallSel = null;
+			Array.Resize(ref Loader.rtUpdateIcon, 0); Loader.rtUpdateIcon = null;
+
         }
 
         public static Texture2D[] tex = new Texture2D[12];

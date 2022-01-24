@@ -341,14 +341,14 @@ namespace aRandomKiwi.RimThemes
             LogMsg("Searching themes in " + themesDir+"...");
 
             string fullPathRoot;
-            string[] folders = System.IO.Directory.GetDirectories(themesDir);
+            var folders = System.IO.Directory.GetDirectories(themesDir);
             LogMsg("Found " + folders.Length + " themes");
             try
             {
                 foreach (var dir in folders)
                 {
                     var theme = dir.Remove(0, dir.LastIndexOf(Path.DirectorySeparatorChar) + 1);
-                    string themeID = modID + "§" + theme;
+                    var themeID = modID + "§" + theme;
 
                     fullPathRoot = themesDir + Path.DirectorySeparatorChar + theme + Path.DirectorySeparatorChar;
 
@@ -361,70 +361,66 @@ namespace aRandomKiwi.RimThemes
 
 
                     //Loading theme icon
-                    string iconFP = fullPathRoot + "Misc" + Path.DirectorySeparatorChar + "Icon.png";
-                    if (File.Exists(iconFP))
-                    {
-                        RDBTexThemeIcon[themeID] = rawBytesLoad(iconFP);
-                    }
+                    var iconFP = fullPathRoot + "Misc" + Path.DirectorySeparatorChar + "Icon";
+                    if (Utils.texFileExist(iconFP))
+                        RDBTexThemeIcon[themeID] = Utils.readAllBytesTexFile(iconFP);
                     else
-                    {
-                        //Define the default theme icon
-                        DBTexThemeIcon[themeID] = Loader.defaultIconTex;
-                    }
+                        DBTexThemeIcon[themeID] = Loader.defaultIconTex; //Define the default theme icon
 
                     //Particle loading if applicable
-                    string ParticleFP = fullPathRoot + "Misc" + Path.DirectorySeparatorChar + "Particle.png";
-                    if (File.Exists(ParticleFP))
-                        RDBTexParticle[themeID] = rawBytesLoad(ParticleFP);
+                    var ParticleFP = fullPathRoot + "Misc" + Path.DirectorySeparatorChar + "Particle";
+                    if (Utils.texFileExist(ParticleFP))
+                        RDBTexParticle[themeID] = Utils.readAllBytesTexFile(ParticleFP);
                     else
                         RDBTexParticle[themeID] = null;
 
                     //Upholstery loading if applicable
-                    string tapestryFP = fullPathRoot + "Misc" + Path.DirectorySeparatorChar + "Tapestry";
+                    var tapestryFP = fullPathRoot + "Misc" + Path.DirectorySeparatorChar + "Tapestry";
                     if (Utils.texFileExist(tapestryFP))
                         RDBTexTapestry[themeID] = Utils.readAllBytesTexFile(tapestryFP);
                     else
                         RDBTexTapestry[themeID] = null;
 
                     //Loading loading screen loader texture
-                    string loaderBarFP = fullPathRoot + "Loader" + Path.DirectorySeparatorChar + "LoaderBar.png";
-                    if (File.Exists(loaderBarFP))
-                        RDBTexLoaderBar[themeID] = rawBytesLoad(loaderBarFP);
+                    var loaderBarFP = fullPathRoot + "Loader" + Path.DirectorySeparatorChar + "LoaderBar";
+                    if (Utils.texFileExist(loaderBarFP))
+                        RDBTexLoaderBar[themeID] = Utils.readAllBytesTexFile(loaderBarFP);
                     else
                         RDBTexLoaderBar[themeID] = null;
 
 
                     //Loading texture background from the loader bar
-                    string loaderBarTextFP = fullPathRoot + "Loader" + Path.DirectorySeparatorChar + "TextBar.png";
-                    if (File.Exists(loaderBarTextFP))
-                        RDBTexLoaderText[themeID] = rawBytesLoad(loaderBarTextFP);
+                    var loaderBarTextFP = fullPathRoot + "Loader" + Path.DirectorySeparatorChar + "TextBar";
+                    if (Utils.texFileExist(loaderBarTextFP))
+                        RDBTexLoaderText[themeID] = Utils.readAllBytesTexFile(loaderBarTextFP);
                     else
                         RDBTexLoaderText[themeID] = null;
 
                     //Loading custom textures
-                    string texPath = fullPathRoot + Path.DirectorySeparatorChar + "Textures";
-                    string imgExt = "";
+                    var texPath = fullPathRoot + Path.DirectorySeparatorChar + "Textures";
                     //Theme folder found
                     try
                     {
                         if (Directory.Exists(texPath))
                         {
-                            string[] texFiles = System.IO.Directory.GetFiles(texPath);
-                            foreach (var tex in texFiles)
+                            foreach (var tex in Directory.GetFiles(texPath)
+                                .Select(e => Path.Combine(Path.GetDirectoryName(e) ?? "", Path.GetFileNameWithoutExtension(e)))
+                                .Distinct())
                             {
-                                imgExt = Path.GetExtension(tex);
-                                //If not expected image format we squeeze the current file
-                                if (imgExt == null || !Utils.isValidImgExt(imgExt.ToLower()))
+                                if (!Utils.texFileExist(tex))
                                     continue;
+
                                 //Filename deduction without extension
-                                string curTexName = Path.GetFileNameWithoutExtension(tex);
+                                var curTexName = Path.GetFileName(tex);
 
                                 //Get class name and field name
                                 if (curTexName.IndexOf('.') == -1)
+                                {
                                     LogMsg("Bad tex name for " + curTexName + " cannot get className and fieldName");
+                                }
                                 else
                                 {
-                                    string[] tmp = getClassNameAndFileName(curTexName);
+                                    var tmp = getClassNameAndFileName(curTexName);
 
                                     if (tmp.Length != 2)
                                     {
@@ -438,7 +434,7 @@ namespace aRandomKiwi.RimThemes
                                         //Attempt to get the property dynamically to verify sound validity
                                         try
                                         {
-                                            RDBTex[themeID][tmp[0]][tmp[1]] = rawBytesLoad(tex);
+                                            RDBTex[themeID][tmp[0]][tmp[1]] = Utils.readAllBytesTexFile(tex);
                                         }
                                         catch (Exception e)
                                         {
@@ -455,7 +451,7 @@ namespace aRandomKiwi.RimThemes
                     }
 
                     //If available loading the animated background
-                    string animatedPath = dir + Path.DirectorySeparatorChar + "Textures" + Path.DirectorySeparatorChar + "UI_BackgroundMain.BGPlanet.webm";
+                    var animatedPath = dir + Path.DirectorySeparatorChar + "Textures" + Path.DirectorySeparatorChar + "UI_BackgroundMain.BGPlanet.webm";
                     if (File.Exists(animatedPath))
                     {
                         try
@@ -471,7 +467,7 @@ namespace aRandomKiwi.RimThemes
 
 
                     //Loading the meta storage file
-                    string metaPath = dir + Path.DirectorySeparatorChar + "meta.xml";
+                    var metaPath = dir + Path.DirectorySeparatorChar + "meta.xml";
 
                     //Loading metas from the current theme
                     processMetaXML(themeID,metaPath);
@@ -483,30 +479,32 @@ namespace aRandomKiwi.RimThemes
                     }
 
                     //Loading custom sounds
-                    string soundPath = dir + Path.DirectorySeparatorChar + "Sounds";
+                    var soundPath = dir + Path.DirectorySeparatorChar + "Sounds";
                     //Theme folder found
                     try
                     {
                         if (Directory.Exists(soundPath))
                         {
-                            Type ctype = Type.GetType(typeof(SoundDefOf).AssemblyQualifiedName);
+                            var ctype = typeof(SoundDefOf);
                             DBSound[themeID] = new Dictionary<string, AudioGrain_ClipTheme>();
 
-                            string[] soundFiles = System.IO.Directory.GetFiles(soundPath);
+                            var soundFiles = System.IO.Directory.GetFiles(soundPath);
                             foreach (var sound in soundFiles)
                             {
                                 //Filename deduction without extension
-                                string curSoundName = Path.GetFileNameWithoutExtension(sound);
+                                var curSoundName = Path.GetFileNameWithoutExtension(sound);
 
                                 //Attempt to get the property dynamically to verify sound validity
                                 try
                                 {
-                                    FieldInfo fi = ctype.GetField(curSoundName);
-                                    SoundDef entry = (SoundDef)fi.GetValue(null);
+                                    var fi = ctype.GetField(curSoundName);
+                                    var entry = (SoundDef)fi.GetValue(null);
 
                                     //bool doStream = ShouldStreamAudioClipFromPath(sound);
-                                    DBSound[themeID][curSoundName] = new AudioGrain_ClipTheme();
-                                    DBSound[themeID][curSoundName].themeClipPath = sound;
+                                    DBSound[themeID][curSoundName] = new AudioGrain_ClipTheme
+                                    {
+                                        themeClipPath = sound
+                                    };
                                     //DBSound[themeID][curSoundName] = (AudioClip)((object)Manager.Load(sound, doStream, true, true));
                                     LogMsg("Loading custom sound " + curSoundName + " OK");
                                 }
@@ -524,8 +522,7 @@ namespace aRandomKiwi.RimThemes
 
 
                     //Constitution of the list of custom music to load
-                    string songPath = dir + Path.DirectorySeparatorChar + "Songs";
-                    string ext;
+                    var songPath = dir + Path.DirectorySeparatorChar + "Songs";
                     //Theme folder found
                     try
                     {
@@ -533,17 +530,17 @@ namespace aRandomKiwi.RimThemes
                         {
                             DBSong[themeID] = new Dictionary<string, AudioClip>();
 
-                            string[] songFiles = System.IO.Directory.GetFiles(songPath);
+                            var songFiles = System.IO.Directory.GetFiles(songPath);
                             DBSongsToLoad[themeID] = new Dictionary<string, string>();
 
-                            foreach (string cfsong in songFiles)
+                            foreach (var cfsong in songFiles)
                             {
                                 //string cfsong = songPath + Path.DirectorySeparatorChar + "EntrySong.ogg";
-                                ext = Path.GetExtension(cfsong);
+                                var ext = Path.GetExtension(cfsong);
                                 if (File.Exists(cfsong) &&  ext != null && ext.ToLower() == ".ogg" )
                                 {
                                     //Filename deduction without extension
-                                    string curSongName = Path.GetFileNameWithoutExtension(cfsong);
+                                    var curSongName = Path.GetFileNameWithoutExtension(cfsong);
                                     //Addition to the list of songs to load
                                     DBSongsToLoad[themeID][curSongName] = cfsong;
                                     LogMsg("Append " + curSongName + " song to preload songs list");
@@ -561,7 +558,7 @@ namespace aRandomKiwi.RimThemes
                 }
 
                 //Check if the font pack is available, if necessary save for loading in the main thread
-                string fontBundlePath = themesDir + Path.DirectorySeparatorChar + "fontsPackage";
+                var fontBundlePath = themesDir + Path.DirectorySeparatorChar + "fontsPackage";
                 //Theme folder found
                 try
                 {
@@ -2011,9 +2008,11 @@ namespace aRandomKiwi.RimThemes
             int lastIndex = rscName.LastIndexOf('.');
             if (lastIndex + 1 < rscName.Length)
             {
-                ret = new string[2];
-                ret[0] = rscName.Substring(0, lastIndex);
-                ret[1] = rscName.Substring(lastIndex + 1);
+                ret = new[]
+                {
+                    rscName.Substring(0, lastIndex),
+                    rscName.Substring(lastIndex + 1)
+                };
             }
             return ret;
         }

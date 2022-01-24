@@ -330,6 +330,7 @@
     <Compile Include="Structs\FOI.cs" />
     <Compile Include="Structs\WDESC.cs" />
     <Compile Include="Utils\ColorsSubstitution.cs" />
+    <Compile Include="Utils\DDSLoader.cs" />
     <Compile Include="Utils\Fonts.cs" />
     <Compile Include="Utils\FontsPackage.cs" />
     <Compile Include="Utils\Loader.cs" />
