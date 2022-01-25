@@ -1164,7 +1164,7 @@ namespace aRandomKiwi.RimThemes
                                     {
                                         var fromTex = (Texture2D) (object) db[theme][key][field.field];
                                         var toTex = (Texture2D) classType.GetField(field.field, field.bf).GetValue(null);
-                                        Graphics.CopyTexture(fromTex, toTex);
+                                        Graphics.CopyTexture(fromTex, toTex); // or Graphics.ConvertTexture?
                                     }
                                     else
                                     {
@@ -1961,12 +1961,12 @@ namespace aRandomKiwi.RimThemes
          */
         public static void LogError(string msg)
         {
-            Log.Message("[RimThemesError] " + msg);
+            Log.Error("[RimThemesError] " + msg);
         }
 
         public static void LogException(string msg, Exception exception)
         {
-            Log.Message("[RimThemesError] " + msg + "\n" + exception);
+            Log.Error("[RimThemesError] " + msg + "\n" + exception);
         }
 
 
