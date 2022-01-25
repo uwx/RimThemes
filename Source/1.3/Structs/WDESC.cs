@@ -6,15 +6,15 @@ using System.Reflection;
 
 namespace aRandomKiwi.RimThemes
 {
-    struct WDESC
+    internal readonly struct WDESC
     {
-        public int type;
-        public int wid;
+        public readonly int type;
+        public readonly int wid;
 
         public WDESC(int type, int wid)
         {
             this.type = type;
             this.wid = wid;
         }
-    };
+    }
 }
