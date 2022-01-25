@@ -35,7 +35,7 @@ namespace aRandomKiwi.RimThemes
         public static int windowAnimation = (int)WindowAnim.Theme;
         public static bool disableTapestry = false;
         public static bool hideLoadingText = false;
-        public static bool verboseMode = false;
+        public static bool verboseMode = true;
         public static string curRandomBg = null;
         public static string lastVersionInfo = "";
         public static bool disableFontFilterModePoint = true;
