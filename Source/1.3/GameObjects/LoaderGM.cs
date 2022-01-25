@@ -407,12 +407,9 @@ namespace aRandomKiwi.RimThemes
 
                             foreach (var (field, bytes) in dict2)
                             {
-                                if (bytes != null)
-                                {
-                                    Themes.DBTex[theme][type][field] = Utils.LoadTexture(bytes);
-                                }
-                                else
-                                    Themes.DBTex[theme][type][field] = null;
+                                Themes.DBTex[theme][type][field] = bytes != null
+                                    ? Utils.LoadTexture(bytes)
+                                    : null;
                             }
                         }
                         
