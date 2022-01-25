@@ -32,28 +32,31 @@ namespace aRandomKiwi.RimThemes
 
         //static public bool firstOpenedConsole = false;
         //static public int vipWindowID = -1;
-        static public List<WDESC> lastShowedWin = new List<WDESC>();
+        static public List<WDESC> lastShowedWin = new();
         static public bool needRefresh = false;
         static public ModContentPack currentMod;
         static public Mod currentModInst;
         static public Settings modSettings;
-        static public string releaseInfo = "RimThemes NX";
-        static public string releaseDesc = "Changes :" + Environment.NewLine
-            + "-Added the name of the current main donor in the themes selection menu" + Environment.NewLine
-            + "-Improved all default themes" + Environment.NewLine
-            + "-Added new setting allowing to adjust all windows opacity level" + Environment.NewLine
-            + "-Added new setting allowing to hide the RimThemes logo in the main menu" + Environment.NewLine
-            + "-Added new settings allowing to hide the main menu expansions icons, info corner and more" + Environment.NewLine
-            + "-Added new setting allowing to hide windows shadows" + Environment.NewLine
-            + "-Added new default theme 'Rim-Life 2' and 'Mechanoid cluster'" + Environment.NewLine
-            + "-Fixed the overlapping issue with the expansions icons buttons (in the bottom left)" + Environment.NewLine
-            + "-Fixed confirm button texture issue (vanilla texture applied instead of the current theme)" + Environment.NewLine
-            + "-Few others minors improvements" + Environment.NewLine + Environment.NewLine
-            + "For themes makers :" + Environment.NewLine
-            + "-Fixed tapestry border color tag bug (color was never applied in themes)" + Environment.NewLine
-            + "-Added support for custom APNG loader FPS with the new tag 'loaderFPS'" + Environment.NewLine
-            + "-Few others new tags (download the Theme example package for more details)" + Environment.NewLine + Environment.NewLine
-            + "/!\\ Notice : Support for 1.0 is dropped, only RimThemes 2020R1 is compatible with Rimworld 1.0." + Environment.NewLine;
+        public const string releaseInfo = "RimThemes NX";
+
+        public const string releaseDesc
+            = "Changes :\n"
+            + "-Added the name of the current main donor in the themes selection menu\n"
+            + "-Improved all default themes\n"
+            + "-Added new setting allowing to adjust all windows opacity level\n"
+            + "-Added new setting allowing to hide the RimThemes logo in the main menu\n"
+            + "-Added new settings allowing to hide the main menu expansions icons, info corner and more\n"
+            + "-Added new setting allowing to hide windows shadows\n"
+            + "-Added new default theme 'Rim-Life 2' and 'Mechanoid cluster'\n"
+            + "-Fixed the overlapping issue with the expansions icons buttons (in the bottom left)\n"
+            + "-Fixed confirm button texture issue (vanilla texture applied instead of the current theme)\n"
+            + "-Few others minors improvements\n\n"
+            + "For themes makers :\n"
+            + "-Fixed tapestry border color tag bug (color was never applied in themes)\n"
+            + "-Added support for custom APNG loader FPS with the new tag 'loaderFPS'\n"
+            + "-Few others new tags (download the Theme example package for more details)\n\n"
+            + "/!\\ Notice : Support for 1.0 is dropped, only RimThemes 2020R1 is compatible with Rimworld 1.0.\n"
+            ;
 
         private static Traverse cachedLabelWidthCache = null;
         static private bool initCachedLabelWidthCache = false;
@@ -74,7 +77,6 @@ namespace aRandomKiwi.RimThemes
 
         public static void startLoadingTheme()
         {
-            AssetBundle cab = null;
             LoaderGM.curStep = LoaderSteps.loadingTheme;
             //Loading all dependances from the themes THEN generating theme textures inside LoaderGM
             Themes.startInit();
@@ -96,7 +98,6 @@ namespace aRandomKiwi.RimThemes
                 Thread.Sleep(250);
                 //Loading the encoded font bundle into memory
                 Themes.fontsPackage.Add(AssetBundle.LoadFromMemory(FontsPackage.fonts)); //LoadFromFile(Utils.currentMod.RootDir + Path.DirectorySeparatorChar + "fontspackage");
-                Themes.fontsPackage = null;
                 Themes.LogMsg("Load main fonts package OK");
             }
             catch (Exception e)
@@ -112,7 +113,7 @@ namespace aRandomKiwi.RimThemes
             {
                 try
                 {
-                    cab = AssetBundle.LoadFromFile(fbPath);
+                    var cab = AssetBundle.LoadFromFile(fbPath);
                     if (cab == null)
                         throw new Exception("Invalid font package "+fbPath);
 
@@ -154,7 +155,7 @@ namespace aRandomKiwi.RimThemes
         static public byte[] readAllBytesTexFile(string path)
         {
             if (File.Exists(path + ".dds"))
-                return Encoding.UTF8.GetBytes("_DDS_" + path);
+                return Encoding.UTF8.GetBytes("_DDS_" + path + ".dds");
             if (File.Exists(path + ".png"))
                 return File.ReadAllBytes(path + ".png");
             if (File.Exists(path + ".jpg"))
@@ -166,13 +167,17 @@ namespace aRandomKiwi.RimThemes
         private static readonly byte[] DDSBytes = Encoding.ASCII.GetBytes("_DDS_");
         public static Texture2D LoadTexture(byte[] bytes)
         {
-            if (bytes.Length == 5 && bytes[0] == DDSBytes[0] && bytes[1] == DDSBytes[1] && bytes[2] == DDSBytes[2] && bytes[3] == DDSBytes[3] && bytes[4] == DDSBytes[4])
+            if (bytes.Length >= DDSBytes.Length && bytes[0] == DDSBytes[0] && bytes[1] == DDSBytes[1] && bytes[2] == DDSBytes[2] && bytes[3] == DDSBytes[3] && bytes[4] == DDSBytes[4])
             {
-                var tex1 = DDSLoader.LoadDDS(Encoding.UTF8.GetString(bytes, 5, bytes.Length - 5));
+                var filePath = Encoding.UTF8.GetString(bytes, 5, bytes.Length - 5);
+                var tex1 = DDSLoader.LoadDDS(filePath);
                 if (ReferenceEquals(tex1, null))
                 {
-                    Themes.LogError("When loading DDS file: " + DDSLoader.error);
+                    Themes.LogError("When loading DDS file '" + filePath + "': " + DDSLoader.error);
+                    return null;
                 }
+
+                tex1.Apply();
 
                 return tex1;
             }
