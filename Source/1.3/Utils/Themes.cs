@@ -21,7 +21,7 @@ using UnityEngine.Networking;
 namespace aRandomKiwi.RimThemes
 {
     [StaticConstructorOnStartup]
-    static class Themes
+    internal static class Themes
     {
         static Themes()
         {
@@ -256,8 +256,10 @@ namespace aRandomKiwi.RimThemes
 
                 //Search for theme in mod folder
                 string themesDir = Utils.currentMod.RootDir + Path.DirectorySeparatorChar + "Themes" + Path.DirectorySeparatorChar;
-                DBModInfo["-1"] = new Dictionary<string, string>();
-                DBModInfo["-1"]["name"] = "";
+                DBModInfo["-1"] = new Dictionary<string, string>
+                {
+                    ["name"] = ""
+                };
 
                 loadThemesInFolder("-1", themesDir, true);
             }
@@ -340,17 +342,16 @@ namespace aRandomKiwi.RimThemes
         {
             LogMsg("Searching themes in " + themesDir+"...");
 
-            string fullPathRoot;
-            var folders = System.IO.Directory.GetDirectories(themesDir);
+            var folders = Directory.GetDirectories(themesDir);
             LogMsg("Found " + folders.Length + " themes");
             try
             {
                 foreach (var dir in folders)
                 {
                     var theme = dir.Remove(0, dir.LastIndexOf(Path.DirectorySeparatorChar) + 1);
-                    var themeID = modID + "§" + theme;
+                    var themeID = $"{modID}§{theme}";
 
-                    fullPathRoot = themesDir + Path.DirectorySeparatorChar + theme + Path.DirectorySeparatorChar;
+                    var fullPathRoot = themesDir + Path.DirectorySeparatorChar + theme + Path.DirectorySeparatorChar;
 
                     LoaderGM.curTheme = theme;
 
@@ -530,7 +531,7 @@ namespace aRandomKiwi.RimThemes
                         {
                             DBSong[themeID] = new Dictionary<string, AudioClip>();
 
-                            var songFiles = System.IO.Directory.GetFiles(songPath);
+                            var songFiles = Directory.GetFiles(songPath);
                             DBSongsToLoad[themeID] = new Dictionary<string, string>();
 
                             foreach (var cfsong in songFiles)
@@ -586,8 +587,10 @@ namespace aRandomKiwi.RimThemes
             DBText[themeID] = new Dictionary<string, string>();
             if (!DBVal.ContainsKey(themeID))
             {
-                DBVal[themeID] = new Dictionary<string, int>();
-                DBVal[themeID]["loaderfps"] = 20;
+                DBVal[themeID] = new Dictionary<string, int>
+                {
+                    ["loaderfps"] = 20
+                };
             }
 
             //Check existence of meta file
@@ -797,8 +800,7 @@ namespace aRandomKiwi.RimThemes
                                             case "disabletransparenttext":
                                             case "menuspecialmode":
                                             case "loaderfps":
-                                                int num = 0;
-                                                bool res = int.TryParse(value, out num);
+                                                bool res = int.TryParse(value, out var num);
                                                 if (res)
                                                     DBVal[themeID][tag] = num;
                                                 else
@@ -846,7 +848,7 @@ namespace aRandomKiwi.RimThemes
 
         public static void changeThemeNow(string modID, string themeName, bool manualChange)
         {
-            string newTheme = modID + "§" + themeName;
+            string newTheme = $"{modID}§{themeName}";
             changeThemeNow(newTheme, manualChange);
         }
 
@@ -864,8 +866,10 @@ namespace aRandomKiwi.RimThemes
                     saveVanillaRsc<Texture2D>(DBTex);
                     saveVanillaRsc<Color>(DBColor);
                     DBDynColor[VanillaThemeID] = new Dictionary<Color, Color>();
-                    DBText[VanillaThemeID] = new Dictionary<string, string>();
-                    DBText[VanillaThemeID]["description"] = "Want some old school interface ?";
+                    DBText[VanillaThemeID] = new Dictionary<string, string>
+                    {
+                        ["description"] = "Want some old school interface ?"
+                    };
                     LogMsg("Saving vanilla theme ending");
                     vanillaThemeSaved = true;
 
@@ -959,8 +963,11 @@ namespace aRandomKiwi.RimThemes
             }
 
 
-            if (!DBSong.TryGetValue(theme, out var songs) || songs == null)
-                theme = VanillaThemeID;
+            // if (!DBSong.TryGetValue(theme, out var songs) || songs == null)
+            //     theme = VanillaThemeID;
+
+            if ((!DBSong.TryGetValue(theme, out var songs) || songs == null) && theme != VanillaThemeID)
+                songs = DBSong[VanillaThemeID];
 
             try
             {
@@ -1072,8 +1079,7 @@ namespace aRandomKiwi.RimThemes
                 }
                 catch(Exception e)
                 {
-                    if(field != null)
-                        Themes.LogError("Cannot save vanilla grain "+field.Name+" : "+e.Message);
+                    Themes.LogError("Cannot save vanilla grain "+field.Name+" : "+e.Message);
                 }
             }
         }
@@ -1089,14 +1095,10 @@ namespace aRandomKiwi.RimThemes
                 {
                     List<ResolvedGrain> resolvedGrains = (List<ResolvedGrain>)Traverse.Create(entry.subSounds[0]).Field("resolvedGrains").GetValue();
                     resolvedGrains.Clear();
-                    foreach (var grain in DBVanillaResolvedGrains[field.Name])
-                    {
-                        resolvedGrains.Add(grain);
-                    }
+                    resolvedGrains.AddRange(DBVanillaResolvedGrains[field.Name]);
                 }
             }
         }
-
 
 
         /*
@@ -1104,22 +1106,13 @@ namespace aRandomKiwi.RimThemes
          */
         public static void changeTheme<T>(Dictionary<string, Dictionary<string, Dictionary<string, T>>> db, string forcedTheme=null)
         {
-            string theme;
-            if (forcedTheme != null)
-                theme = forcedTheme;
-            else
-                theme = Settings.curTheme;
-
-            bool typeTex = true;
-            Dictionary<string, List<FOI>> curFOI = fieldsOfInterestTex;
+            var theme = forcedTheme ?? Settings.curTheme;
 
             if (!db.ContainsKey(theme))
                 return;
 
-            if (typeof(T) != typeof(Texture2D)){
-                typeTex = false;
-                curFOI = fieldsOfInterestColor;
-            }
+            var typeTex = typeof(T) == typeof(Texture2D);
+            var curFOI = typeTex ? fieldsOfInterestTex : fieldsOfInterestColor;
 
             //Browse all the fields Of interest present for the current theme in order to substitute the fields in the RW classes
             //For each class of interest
@@ -1131,7 +1124,7 @@ namespace aRandomKiwi.RimThemes
                     if (db[theme].ContainsKey(key))
                     {
                         //Namespace deduction
-                        string ns = "Verse";
+                        var ns = "Verse";
                         if(typeTex)
                         {
                             if (fieldsOfInterestTexNS.TryGetValue(key, out var ns1))
@@ -1145,7 +1138,7 @@ namespace aRandomKiwi.RimThemes
 
 
                         //Obtaining the type
-                        Type classType = typeof(FloatMenuOption).Assembly.GetType(ns+"." + key);
+                        var classType = RimWorldAssembly.GetType($"{ns}.{key}");
 
                         //For each of the texture variables of interest we save the texture reference
                         foreach (var field in value)
@@ -1230,14 +1223,9 @@ namespace aRandomKiwi.RimThemes
             const string theme = VanillaThemeID;
             
             db[theme] = new Dictionary<string, Dictionary<string, T>>();
-            var curFOI = fieldsOfInterestTex;
-            var typeTex = true;
+            var typeTex = typeof(T) == typeof(Texture2D);
+            var curFOI = typeTex ? fieldsOfInterestTex : fieldsOfInterestColor;
 
-            if (typeof(T) != typeof(Texture2D))
-            {
-                typeTex = false;
-                curFOI = fieldsOfInterestColor;
-            }
             //Browse all the fields Of interest present for the current theme in order to substitute the fields in the RW classes
             //For each class of interest
             foreach (var (key, value) in curFOI)
@@ -1259,7 +1247,7 @@ namespace aRandomKiwi.RimThemes
                     }
 
                     //Obtaining the type
-                    var classType = typeof(FloatMenuOption).Assembly.GetType(ns + "." + key);
+                    var classType = RimWorldAssembly.GetType($"{ns}.{key}");
 
                     //For each of the texture variables of interest we save the texture reference
                     foreach (var field in value)
@@ -1271,44 +1259,8 @@ namespace aRandomKiwi.RimThemes
                             var savedTex = (Dictionary<string, Texture2D>) (object) db[theme][key];
                             var curTex = (Texture2D) classType.GetField(field.field, field.bf).GetValue(null);
                             
-                            //try
-                            //{
                             savedTex[field.field] = new Texture2D(curTex.width, curTex.height, curTex.format, curTex.mipmapCount, !GraphicsFormatUtility.IsSRGBFormat(curTex.graphicsFormat));
                             Graphics.CopyTexture(curTex, savedTex[field.field]);
-                            //}
-                            //catch (Exception e1)
-                            //{
-                            //    Themes.LogException("Failed to copy texture " + classType + "." + field.field + ", falling back to RenderTexture method", e1);
-                            
-                            //    try
-                            //    {
-                            //        curTex.filterMode = FilterMode.Point;
-                            //    
-                            //        var rt = RenderTexture.GetTemporary(curTex.width, curTex.height);
-                            //        RenderTexture.active = rt;
-                            //        try
-                            //        {
-                            //            Graphics.Blit(curTex, rt);
-
-                            //            var img2 = new Texture2D(curTex.width, curTex.height, TextureFormat.RGBA32, false);
-                            //            img2.ReadPixels(new Rect(0, 0, curTex.width, curTex.height), 0, 0, false);
-                            //            img2.Apply(false);
-
-                            //            savedTex[field.field] = new Texture2D(curTex.width, curTex.height, curTex.format, curTex.mipmapCount, !GraphicsFormatUtility.IsSRGBFormat(curTex.graphicsFormat));
-                            //            savedTex[field.field].SetPixels(img2.GetPixels());
-                            //            savedTex[field.field].Apply();
-                            //        }
-                            //        finally
-                            //        {
-                            //            RenderTexture.active = null;
-                            //            rt.Release();
-                            //        }
-                            //    }
-                            //    catch (Exception e2)
-                            //    {
-                            //        Themes.LogException("saveVanillaRsc (" + typeof(T) + ")  : Cannot save field " + key + "." + field.field + " : ", e2);
-                            //    }
-                            //}
                         }
                         else
                         {
@@ -1319,7 +1271,7 @@ namespace aRandomKiwi.RimThemes
                 }
                 catch (Exception e)
                 {
-                    Themes.LogError("saveVanillaRsc (" + typeof(T) + ")  : Cannot get class " + key+" : "+e.Message);
+                    Themes.LogError($"saveVanillaRsc ({typeof(T)})  : Cannot get class {key} : {e.Message}");
                 }
             }
         }
@@ -1953,7 +1905,7 @@ namespace aRandomKiwi.RimThemes
         public static void LogMsg(string msg,bool forceShow=false)
         {
             if(Settings.verboseMode || forceShow)
-                Log.Message("[RimThemes] " + msg);
+                Log.Message($"[RimThemes] {msg}");
         }
 
         /*
@@ -1961,12 +1913,12 @@ namespace aRandomKiwi.RimThemes
          */
         public static void LogError(string msg)
         {
-            Log.Error("[RimThemesError] " + msg);
+            Log.Error($"[RimThemesError] {msg}");
         }
 
         public static void LogException(string msg, Exception exception)
         {
-            Log.Error("[RimThemesError] " + msg + "\n" + exception);
+            Log.Error($"[RimThemesError] {msg}\n{exception}");
         }
 
 
@@ -2187,5 +2139,7 @@ namespace aRandomKiwi.RimThemes
         public static bool vanillaSongGrainsSaved = false;
         public static bool vanillaThemeSaved = false;
         public static bool currentThemeExist = true;
+        
+        private static readonly Assembly RimWorldAssembly = typeof(FloatMenuOption).Assembly;
     }
 }
