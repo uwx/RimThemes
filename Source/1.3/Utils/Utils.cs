@@ -173,15 +173,28 @@ namespace aRandomKiwi.RimThemes
                 var tex1 = DDSLoader.LoadDDS(filePath);
                 if (ReferenceEquals(tex1, null))
                 {
-                    Themes.LogError("When loading DDS file '" + filePath + "': " + DDSLoader.error);
+                    Themes.LogError($"When loading DDS file '{filePath}': {DDSLoader.error}");
                     return null;
                 }
 
                 tex1.Apply();
-
-                return tex1;
+                
+                // Some textures need to be in RGBA32 with no mip chain. (maybe only the cursor?)
+                // to guarantee this, we can convert the texture
+                // on the GPU. technically this doesn't need to be done for every texture, but i don't want to find each
+                // individual one that doesn't support whatever DDS format is used
+                var tex2 = new Texture2D(tex1.width, tex1.height, TextureFormat.RGBA32, false);
+                if (!Graphics.ConvertTexture(tex1, tex2))
+                {
+                    Themes.LogError($"Failed to convert texture '{filePath}' to RGBA32. Texture format: {tex1.format}, graphics format: {tex1.graphicsFormat}");
+                }
+                
+                UnityEngine.Object.DestroyImmediate(tex1);
+                
+                return tex2;
             }
-            var tex = new Texture2D(196, 196, TextureFormat.ARGB32, false);
+            // JPG files are loaded into RGB24 format, PNG files are loaded into ARGB32 format
+            var tex = new Texture2D(2, 2, TextureFormat.ARGB32, false);
             tex.LoadImage(bytes);
             return tex;
         }
