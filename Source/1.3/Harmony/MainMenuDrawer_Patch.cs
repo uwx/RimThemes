@@ -113,15 +113,13 @@ namespace aRandomKiwi.RimThemes
                 rect.yMin += 17f;
 
                 int menuSpecialMode = Themes.getVal("menuspecialmode");
-                switch(menuSpecialMode)
+                if (menuSpecialMode == 1)
                 {
-                    case 1:  
-                        Text.Font = GameFont.Medium;
-                        Utils.textFontSetterLock = true;
-                        Utils.tempDisableButtonsBackground = true;
-                        Utils.squeezedDrawOptionListingIndex = 2;
-                        Utils.squeezedDrawOptionListingIndexReturnVal = -13f;
-                        break;
+                    Text.Font = GameFont.Medium;
+                    Utils.textFontSetterLock = true;
+                    Utils.tempDisableButtonsBackground = true;
+                    Utils.squeezedDrawOptionListingIndex = 2;
+                    Utils.squeezedDrawOptionListingIndexReturnVal = -13f;
                 }
 
                 MainMenuDrawer.DoMainMenuControls(rect, ___anyMapFiles);
