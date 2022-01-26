@@ -315,10 +315,7 @@ namespace aRandomKiwi.RimThemes
                                     Themes.DBGUIStyle[entry.Key][GameFont.Tiny].fontSize = Themes.DBTinyFontSizeByTheme[entry.Key];
 
                                     //On applique la politique actuelle de filtrage des points
-                                    if (disableFontFilterModePoint)
-                                        Themes.DBGUIStyle[entry.Key][GameFont.Tiny].font.material.mainTexture.filterMode = FilterMode.Trilinear;
-                                    else
-                                        Themes.DBGUIStyle[entry.Key][GameFont.Tiny].font.material.mainTexture.filterMode = FilterMode.Point;
+                                    Themes.DBGUIStyle[entry.Key][GameFont.Tiny].font.material.mainTexture.filterMode = disableFontFilterModePoint ? FilterMode.Trilinear : FilterMode.Point;
                                 }
                                 else
                                 {
