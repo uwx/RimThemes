@@ -1157,7 +1157,7 @@ namespace aRandomKiwi.RimThemes
                                     {
                                         var fromTex = (Texture2D) (object) db[theme][key][field.field];
                                         var toTex = (Texture2D) classType.GetField(field.field, field.bf).GetValue(null);
-                                        Graphics.CopyTexture(fromTex, toTex); // or Graphics.ConvertTexture?
+                                        Graphics.ConvertTexture(fromTex, toTex); // or Graphics.CopyTexture?
                                     }
                                     else
                                     {
